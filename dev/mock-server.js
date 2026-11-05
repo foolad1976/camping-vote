@@ -52,12 +52,16 @@ class Range {
 const sheets = new Map();
 const ss = {
   getSheetByName: (n) => sheets.get(n) || null,
+  getId: () => 'mock-sheet',
+  getName: () => '露營投票資料（測試）',
   insertSheet: (n) => { const s = new Sheet(); sheets.set(n, s); return s; },
 };
 const cache = new Map();
+const props = new Map();
 const ctx = vm.createContext({
   console,
-  SpreadsheetApp: { getActiveSpreadsheet: () => ss, flush() {} },
+  SpreadsheetApp: { getActiveSpreadsheet: () => ss, openById: () => ss, flush() {} },
+  PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) || null, setProperty: (k, v) => props.set(k, v) }) },
   CacheService: { getScriptCache: () => ({
     get: (k) => { const e = cache.get(k); return e && e.exp > Date.now() ? e.v : null; },
     put: (k, v, ttl) => cache.set(k, { v, exp: Date.now() + ttl * 1000 }),

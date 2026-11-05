@@ -19,6 +19,10 @@ const MAX_HISTORY = 3000;     // history 超過就刪最舊的
 const RATE_PER_DEVICE = 12;   // 每支手機每分鐘最多寫入次數
 const RATE_GLOBAL = 150;      // 全站每分鐘最多寫入次數
 
+// 網頁上固定的營區代號（index.html 的 SITES）。新增或移除固定營區時，兩邊要一起改。
+const SITE_IDS = ['myhome', 'hutoupi', 'zoumalai', 'meiling', 'zengwen', 'tianchang', 'diaowana', 'gurenren',
+  'zhenfeng', 'yuanshan', 'meiyuan', 'xuanmu', 'heilaoda', 'swiss'];
+
 const COLUMNS = {
   votes: ['id', 'site', 'dates', 'nick', 'updatedAt'],
   proposals: ['id', 'name', 'place', 'url', 'reason', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt'],
@@ -26,6 +30,18 @@ const COLUMNS = {
 };
 
 /* ---------- entry points ---------- */
+
+/**
+ * 第一次設定：在 Apps Script 編輯器選這個函式按「執行」一次。
+ * 會記下這份試算表的編號（網頁版後端靠它找到試算表），並觸發 Google 授權。
+ */
+function setup() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error('請從試算表的「擴充功能 → Apps Script」開啟這份程式再執行');
+  PropertiesService.getScriptProperties().setProperty('SHEET_ID', ss.getId());
+  Object.keys(COLUMNS).forEach(sheet_);
+  return '設定完成：' + ss.getName();
+}
 
 function doGet() {
   // 健康檢查：瀏覽器直接開部署網址會看到目前票況（不含任何金鑰）
@@ -65,12 +81,17 @@ function doPost(e) {
 /* ---------- writes ---------- */
 
 function write_(id, fn) {
-  const cache = CacheService.getScriptCache();
-  bump_(cache, 'rate:all', RATE_GLOBAL);
-  bump_(cache, 'rate:' + id, RATE_PER_DEVICE);
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) fail_('busy');
   try {
+    // 頻率限制放在鎖裡面：檢查和計數不會被同時進來的請求插隊
+    const cache = CacheService.getScriptCache();
+    const minute = Math.floor(Date.now() / 60000); // 固定的一分鐘時間窗，不會因為持續有人送出而一直延長
+    const gk = 'rate:all:' + minute, dk = 'rate:' + id + ':' + minute;
+    const g = Number(cache.get(gk) || 0), d = Number(cache.get(dk) || 0);
+    if (g >= RATE_GLOBAL || d >= RATE_PER_DEVICE) fail_('rate');
+    cache.put(gk, String(g + 1), 120);
+    cache.put(dk, String(d + 1), 120);
     fn();
     SpreadsheetApp.flush();
   } finally {
@@ -79,16 +100,13 @@ function write_(id, fn) {
   return json_({ ok: true, state: readState_(id) });
 }
 
-function bump_(cache, ck, limit) {
-  const n = Number(cache.get(ck) || 0);
-  if (n >= limit) fail_('rate');
-  cache.put(ck, String(n + 1), 60);
-}
-
 function voteRow_(id, req) {
   const site = String(req.site || '');
-  if (!/^([a-z]{2,20}|p:[0-9a-f]{16})$/.test(site)) fail_('invalid', 'site');
-  if (site.indexOf('p:') === 0 && findRow_(sheet_('proposals'), site.slice(2)) < 0) fail_('invalid', '這個提議已被移除');
+  if (site.indexOf('p:') === 0) {
+    if (!/^p:[0-9a-f]{16}$/.test(site) || findRow_(sheet_('proposals'), site.slice(2)) < 0) fail_('invalid', '這個營區已被主揪移除');
+  } else if (SITE_IDS.indexOf(site) < 0) {
+    fail_('invalid', 'site');
+  }
   const dates = Array.isArray(req.dates)
     ? req.dates.map(String).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
     : [];
@@ -184,7 +202,7 @@ function readState_(me) {
   })).filter((v) => v.id && v.site);
   const proposals = rows_('proposals').map((r) => ({
     id: String(r[0]),
-    name: plain_(r[1]),
+    name: plain_(r[1]) || '（未命名營區）', // 名稱變空白也照樣顯示，不會變相消失
     place: plain_(r[2]),
     url: plain_(r[3]),
     reason: plain_(r[4]),
@@ -192,7 +210,7 @@ function readState_(me) {
     at: time_(r[6]),
     editedBy: String(r[7]),
     editedAt: time_(r[8]),
-  })).filter((p) => p.id && p.name);
+  })).filter((p) => /^[0-9a-f]{16}$/.test(p.id));
   return { me: me || null, votes: votes, proposals: proposals };
 }
 
@@ -205,8 +223,15 @@ function rows_(name) {
 
 /* ---------- helpers ---------- */
 
+function spreadsheet_() {
+  const sid = PropertiesService.getScriptProperties().getProperty('SHEET_ID');
+  const ss = sid ? SpreadsheetApp.openById(sid) : SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) fail_('setup', '主揪還沒在 Apps Script 執行 setup()');
+  return ss;
+}
+
 function sheet_(name) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = spreadsheet_();
   let sh = ss.getSheetByName(name);
   if (!sh) {
     sh = ss.insertSheet(name);
@@ -238,16 +263,17 @@ function text_(v, max) {
   return String(v == null ? '' : v).replace(/[\x00-\x1F\x7F]/g, ' ').replace(LINE_SEPARATORS_, ' ').trim().slice(0, max);
 }
 
-// 寫進儲存格前：開頭是 = + - @ 的字串前面加 '，讓試算表當純文字，不會被當成公式執行
+// 寫進儲存格前：開頭是 = + - @ ' 的字串前面加 '，讓試算表當純文字，不會被當成公式執行。
+// 開頭本來就是 ' 的也要加，否則試算表會把那個 ' 當成標記吃掉（例如名稱只填一個 ' 會變空白）。
 function cell_(v) {
   const s = String(v);
-  return /^[=+\-@]/.test(s) ? "'" + s : s;
+  return /^[=+\-@']/.test(s) ? "'" + s : s;
 }
 
-// 讀出來時把上面加的 ' 拿掉
+// 讀出來時：如果試算表沒有吃掉上面加的 '，就在這裡拿掉（兩種情況都能還原原文）
 function plain_(v) {
   const s = v instanceof Date ? v.toISOString() : String(v == null ? '' : v);
-  return /^'[=+\-@]/.test(s) ? s.slice(1) : s;
+  return /^'[=+\-@']/.test(s) ? s.slice(1) : s;
 }
 
 function dateList_(v) {

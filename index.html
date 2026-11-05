@@ -547,7 +547,7 @@ const SITES = [
     season:'冬天夜溫可能接近 0°C；熱水只供應 18:00–22:00，大門 21:00–09:00 管制。', q:'清境小瑞士花園', src:'露營樂營區頁' },
 ];
 let siteNo = 0;
-const SITE_BY_ID = Object.fromEntries(SITES.map((s) => [s.id, Object.assign(s, { n: s.joke ? 0 : ++siteNo })]));
+const SITE_BY_ID = Object.assign(Object.create(null), Object.fromEntries(SITES.map((s) => [s.id, Object.assign(s, { n: s.joke ? 0 : ++siteNo })])));
 const proposals = new Map(); // proposer id -> {name, place, url, reason, at}
 function siteInfo(id) {
   if (SITE_BY_ID[id]) return SITE_BY_ID[id];
@@ -700,7 +700,7 @@ function weekendOptions() {
   return out;
 }
 const DATES = weekendOptions();
-const DATE_BY_KEY = Object.fromEntries(DATES.map((x) => [x.key, x]));
+const DATE_BY_KEY = Object.assign(Object.create(null), Object.fromEntries(DATES.map((x) => [x.key, x])));
 
 /* ---------- state ---------- */
 let db = null, user = null, myId = null, mode = 'loading';
@@ -983,10 +983,15 @@ async function submit() {
   const nick = form.nick.trim();
   if (!nick) { setStatus('請填暱稱，大家才知道是誰投的。', 'err'); $('nick').focus(); return; }
   saving = true; $('submitBtn').disabled = true; setStatus('送出中…');
+  const sent = { site: form.site, dates, nick: nick.slice(0, 20) };
+  const formKey = () => JSON.stringify([form.site, [...form.dates].sort(), form.nick.trim()]);
+  const snapshot = formKey();
   try {
-    await api('vote', { site: form.site, dates, nick: nick.slice(0, 20) });
-    dirty = false; updateGobar();
-    setStatus(`已送出：${siteInfo(form.site).name}，${dates.length} 個週末可出發。之後想改，直接改完再按一次。`, 'ok');
+    await api('vote', sent);
+    const changed = formKey() !== snapshot;
+    if (!changed) { dirty = false; updateGobar(); }
+    const info = siteInfo(sent.site);
+    setStatus(`已送出：${info ? info.name : '你選的營地'}，${dates.length} 個週末可出發。` + (changed ? '送出後你又改了選擇，要再按一次才會更新。' : '之後想改，直接改完再按一次。'), 'ok');
   } catch (e) {
     setStatus(errMsg(e), 'err');
   } finally {
@@ -1086,11 +1091,14 @@ async function submitProposal() {
   const editing = editingPid;
   propSaving = true; $('propSubmit').disabled = true; setPropStatus('送出中…');
   const fields = { name: name.slice(0, 40), place: place.slice(0, 30), url: url.slice(0, 300), reason: reason.slice(0, 150) };
+  const propKey = () => JSON.stringify([editingPid, $('propName').value.trim(), $('propPlace').value.trim(), $('propUrl').value.trim(), $('propReason').value.trim()]);
+  const snapshot = propKey();
   try {
     if (editing) await api('editProposal', Object.assign({ pid: editing }, fields));
     else await api('propose', fields);
-    resetPropForm(); renderProposals();
-    setPropStatus(editing ? '已儲存修改。' : '已新增營區，大家現在可以投它了。要投它的話，在它的卡片按「選這裡」再送出投票。', 'ok');
+    const changed = propKey() !== snapshot;
+    if (!changed) { resetPropForm(); renderProposals(); }
+    setPropStatus((editing ? '已儲存修改。' : '已新增營區，大家現在可以投它了。要投它的話，在它的卡片按「選這裡」再送出投票。') + (changed ? '表單裡是你後來改的內容，還沒送出。' : ''), 'ok');
   } catch (e) {
     setPropStatus(errMsg(e), 'err');
   } finally { propSaving = false; $('propSubmit').disabled = false; }
@@ -1098,8 +1106,8 @@ async function submitProposal() {
 
 /* ---------- results ---------- */
 function tally() {
-  const siteC = Object.fromEntries(allSiteIds().map((id) => [id, 0]));
-  const dateC = Object.fromEntries(DATES.map((x) => [x.key, 0]));
+  const siteC = Object.assign(Object.create(null), Object.fromEntries(allSiteIds().map((id) => [id, 0])));
+  const dateC = Object.assign(Object.create(null), Object.fromEntries(DATES.map((x) => [x.key, 0])));
   for (const v of votes.values()) {
     if (v.site in siteC) siteC[v.site]++;
     for (const k of v.dates) if (k in dateC) dateC[k]++;
