@@ -486,7 +486,8 @@ function updateThemeButton() {
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : darkPreference.matches;
   themeToggle.setAttribute('aria-label', dark ? '切換為淺色模式' : '切換為深色模式');
   themeToggle.title = dark ? '切換為淺色模式' : '切換為深色模式';
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#151e18' : '#f7f6f0';
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.content = dark ? '#151e18' : '#f7f6f0';
 }
 themeToggle.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme || (darkPreference.matches ? 'dark' : 'light');
@@ -903,6 +904,14 @@ class ApiError extends Error { constructor(code, message) { super(message || cod
 let lastStateJson = '';
 async function api(action, payload) {
   if (!API_OK) throw new ApiError('setup');
+  if (window.CAMP_CONFIG && window.CAMP_CONFIG.hosted && window.google && google.script && google.script.run) {
+    const request = Object.assign({ action, key: KEY }, payload || {});
+    const data = await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new ApiError('network')), 30000);
+      google.script.run.withSuccessHandler(data => { clearTimeout(timer); resolve(data); }).withFailureHandler(() => { clearTimeout(timer); reject(new ApiError('network')); }).campRequest(request);
+    });
+    return acceptResponse(data);
+  }
   const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctrl ? setTimeout(() => ctrl.abort(), 20000) : 0;
   let res;
@@ -921,6 +930,9 @@ async function api(action, payload) {
   }
   let data;
   try { data = await res.json(); } catch (e) { throw new ApiError('network'); }
+  return acceptResponse(data);
+}
+function acceptResponse(data) {
   if (!data || data.ok !== true) throw new ApiError((data && data.error) || 'server', data && data.message);
   applyState(data.state);
   return data;
@@ -1250,6 +1262,13 @@ if (inapp) {
 /* ---------- boot ---------- */
 scene($('heroScene'), { w: 1440, h: 640, seed: 20261105, motif: 'hero', hero: true });
 drawMap(); drawFilters(); drawList(); drawForm(); applyFilter(); renderVotes(); setMode('loading');
+if (window.CAMP_CONFIG && window.CAMP_CONFIG.hosted) {
+  // In Google's sandbox, scroll within the app rather than navigating the host.
+  document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    if (target) { event.preventDefault(); target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
+  }));
+}
 if (location.hash === '#propTier') openProposalForm();
 
 const note = $('loadNote');

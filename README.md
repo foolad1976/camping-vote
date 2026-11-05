@@ -6,6 +6,12 @@
 - 網頁：GitHub Pages（這個資料夾）
 - 票數與同伴新增的營區：主揪的 Google 試算表（透過 Google Apps Script）
 
+## Google 網站入口（GitHub Pages 連線異常時）
+
+現在原本的 Apps Script 部署也提供完整網站：在 `config.js` 的 `apiUrl` 後加上 `?page=camp` 即可開啟。網頁樣式、營區清單與程式已打包進 `apps-script/Site.html`，不依賴 `github.io`，投票與網址讀取使用同一套驗證規則及原試算表。
+
+更新此入口：先執行 `node dev/build-hosted-page.js` 與 `node dev/build-backend.js`，將產生的後端程式與 `Site.html` 同步到 Apps Script，然後更新既有部署的新版本。Google 網頁內部以 `google.script.run` 呼叫 `campRequest`，避免跨來源傳輸問題。更換網站網域不會刪除既有票數，但瀏覽器的裝置識別碼各網域獨立。
+
 ## 第一次設定（約 10 分鐘）
 
 ### 第 1 步：建立試算表和後端

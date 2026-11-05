@@ -42,9 +42,18 @@ function setup() {
   return '設定完成：' + ss.getName();
 }
 
-function doGet() {
+function doGet(e) {
+  if (e && e.parameter && e.parameter.page === 'camp') {
+    return HtmlService.createHtmlOutputFromFile('Site').setTitle('週末入山・露營投票').addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover');
+  }
   // 健康檢查：瀏覽器直接開部署網址會看到目前票況（不含任何金鑰）
-  return json_({ ok: true, version: '2026-11-05.3', capabilities: ['previewCamp'], state: readState_('') });
+  return json_({ ok: true, version: '2026-11-05.4', capabilities: ['previewCamp', 'hostedPage'], state: readState_('') });
+}
+
+// HTML-service clients use Google's RPC transport, keeping reads and writes on
+// the same validated API without depending on GitHub Pages or cross-origin fetch.
+function campRequest(request) {
+  return JSON.parse(doPost({ postData: { contents: JSON.stringify(request) } }).getContent());
 }
 
 function doPost(e) {

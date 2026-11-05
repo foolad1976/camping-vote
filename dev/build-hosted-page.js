@@ -1,0 +1,18 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const root = path.resolve(__dirname, '..');
+const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+let html = read('index.html');
+const config = { window: {} };
+vm.runInNewContext(read('config.js'), config);
+const inline = code => '<script>\n' + code.replace(/<\/script/gi, '<\\/script') + '\n</script>';
+html = html.replace('<head>', '<head>\n<base target="_blank">');
+html = html.replace(/<link rel="stylesheet" href="design\.css[^\"]*">/, () => '<style>\n' + read('design.css') + '\n</style>');
+html = html.replace('<script src="config.js"></script>', () => inline('window.CAMP_CONFIG = ' + JSON.stringify({ ...config.window.CAMP_CONFIG, hosted: true }) + ';'));
+html = html.replace(/<script src="camps\.js[^\"]*"><\/script>/, () => inline(read('camps.js')));
+for (const script of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
+if (/<(?:script|link)[^>]*(?:camps\.js|config\.js|design\.css)/.test(html)) throw new Error('Hosted page still depends on external local assets');
+fs.writeFileSync(path.join(root, 'apps-script', 'Site.html'), html);
+console.log('Bundled Google-hosted page (' + Buffer.byteLength(html) + ' bytes)');

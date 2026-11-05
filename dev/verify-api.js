@@ -11,7 +11,7 @@ const camps = sandbox.window.CAMP_SITES;
 const base = process.env.TEST_BASE || 'http://localhost:8787';
 const key = crypto.randomBytes(24).toString('hex');
 async function api(action, fields = {}, deviceKey = key) {
-  return fetch(base + '/api', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, key: deviceKey, ...fields }) }).then(r => r.json());
+  return fetch(base + '/api' + (action === 'previewCamp' ? '?transport=rpc' : ''), { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action, key: deviceKey, ...fields }) }).then(r => r.json());
 }
 (async () => {
   const state = await api('state'); assert.equal(state.ok, true);

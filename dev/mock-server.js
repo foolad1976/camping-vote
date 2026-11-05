@@ -89,7 +89,7 @@ const ctx = vm.createContext({
   } },
   ContentService: {
     MimeType: { JSON: 'json' },
-    createTextOutput: (s) => ({ body: s, setMimeType() { return this; } }),
+    createTextOutput: (s) => ({ body: s, getContent() { return s; }, setMimeType() { return this; } }),
   },
 });
 vm.runInContext(['Catalog.gs', 'Code.gs', 'Importer.gs'].map(name => fs.readFileSync(path.join(ROOT, 'apps-script', name), 'utf8')).join('\n'), ctx, { filename: 'backend.gs' });
@@ -102,7 +102,7 @@ http.createServer((req, res) => {
     let body = '';
     req.on('data', (c) => { body += c; if (body.length > 1e5) req.destroy(); });
     req.on('end', () => {
-      const out = ctx.doPost({ postData: { contents: body } });
+      const out = url.searchParams.get('transport') === 'rpc' ? { body: JSON.stringify(ctx.campRequest(JSON.parse(body))) } : ctx.doPost({ postData: { contents: body } });
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(out.body);
     });
