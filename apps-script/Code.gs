@@ -263,17 +263,20 @@ function text_(v, max) {
   return String(v == null ? '' : v).replace(/[\x00-\x1F\x7F]/g, ' ').replace(LINE_SEPARATORS_, ' ').trim().slice(0, max);
 }
 
-// 寫進儲存格前：開頭是 = + - @ ' 的字串前面加 '，讓試算表當純文字，不會被當成公式執行。
-// 開頭本來就是 ' 的也要加，否則試算表會把那個 ' 當成標記吃掉（例如名稱只填一個 ' 會變空白）。
+// 儲存格跳脫用的零寬空格（看不見）。試算表不會吃掉它，所以存進去、讀出來一定對得上。
+const GUARD_ = String.fromCharCode(0x200B);
+
+// 寫進儲存格前：開頭是 = + - @（會被當公式）、'（會被試算表當標記吃掉）或零寬空格本身的字串，
+// 前面加一個零寬空格。這樣試算表一律當純文字存，讀回時固定去掉一個即可還原原文。
 function cell_(v) {
   const s = String(v);
-  return /^[=+\-@']/.test(s) ? "'" + s : s;
+  return /^[=+\-@']/.test(s) || s.charAt(0) === GUARD_ ? GUARD_ + s : s;
 }
 
-// 讀出來時：如果試算表沒有吃掉上面加的 '，就在這裡拿掉（兩種情況都能還原原文）
+// 讀出來時：去掉 cell_ 加的那一個零寬空格
 function plain_(v) {
   const s = v instanceof Date ? v.toISOString() : String(v == null ? '' : v);
-  return /^'[=+\-@']/.test(s) ? s.slice(1) : s;
+  return s.charAt(0) === GUARD_ ? s.slice(1) : s;
 }
 
 function dateList_(v) {
