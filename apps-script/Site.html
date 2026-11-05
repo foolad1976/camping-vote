@@ -9,7 +9,7 @@
 <meta property="og:title" content="億載金城露營投票：下一次露營去哪裡？">
 <meta property="og:description" content="41 個營區介紹、地圖和即時開票，打開就能投票，不用註冊。">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f0f2ec">
+<meta name="theme-color" content="#f7f0e6">
 <script>
 try { const theme = localStorage.getItem('campvote.theme'); if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme; } catch (e) { /* Use the system preference when storage is unavailable. */ }
 </script>
@@ -320,39 +320,49 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 /* Trailhead — visual layer for the voting app. Phone-first (about 70% of visits).
    One loud thing: heavy black headlines with a tent-amber call to action. Everything else stays quiet.
    Type floor: 12px for badges only; body copy 15–16px. */
+/* "Campfire dusk" palette (2026-11-05 v2): warm oat paper, sunset sky, pine green kept for nature,
+   the vote band is a warm campfire night instead of cold forest green. */
 :root {
-  --bg:#f0f2ec; --surface:#ffffff; --ink:#16241d; --muted:#4c5a51; --line:#d3dad1;
-  --accent:#1e5640; --accent-ink:#ffffff;
-  --flame:#f0a81c; --flame-ink:#1c1404; --flame-soft:#fbefd2; --flame-text:#8a5300;
-  --sky1:#d9e5e4; --sky2:#f3e2b8; --sun:#fff1c2;
-  --ridge3:#aebfa8; --ridge2:#7a9a7e; --ridge1:#3f6b50; --pine:#234a38;
-  --forest:#17342a; --forest-ink:#f3f6f1; --forest-muted:#c5d3c9;
-  --sea:#e1eae6; --land:#f2f1e6; --coast:#a5b49e; --ring:#7d907f;
-  --t0:#7d6390; --t1:#3f7a52; --t2:#8a6a1f; --t3:#b0532f; --t4:#56609a;
+  --bg:#f7f0e6; --surface:#fffbf5; --ink:#2d2219; --muted:#6b5a4b; --line:#e7dac8;
+  --accent:#2f6146; --accent-ink:#ffffff;
+  --flame:#f0a23b; --flame-ink:#2a1606; --flame-soft:#fde9cc; --flame-text:#975009;
+  --sky1:#fde7cb; --sky2:#f7c79b; --sun:#fff5de;
+  --ridge3:#d8b897; --ridge2:#9ba679; --ridge1:#5a7b54; --pine:#355540;
+  --water:#9fcbc3; --steam:#ffffff;
+  --forest:#2b2119; --forest-ink:#fbf3e7; --forest-muted:#dbc9b3;
+  --sea:#e5eee4; --land:#f7efe0; --coast:#cdbb98; --ring:#a8957a;
+  --t0:#8a6a9a; --t1:#4c8656; --t2:#9c7220; --t3:#c0603a; --t4:#5d68a4;
   --f-display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --f-mono:var(--f-body);
-  --r:14px; --shadow:0 1px 2px rgb(22 36 29 / .06);
+  --r:18px;
+  --shadow:0 1px 2px rgb(74 46 20 / .05),0 6px 20px rgb(74 46 20 / .06);
+  --shadow-lift:0 2px 4px rgb(74 46 20 / .06),0 12px 28px rgb(74 46 20 / .10);
+  --glow:rgb(240 162 59 / .16);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:#111916; --surface:#19231e; --ink:#e7ece5; --muted:#aab6ae; --line:#2e3b34;
-    --accent:#8cc5a3; --accent-ink:#0d1a13;
-    --flame:#f2b53a; --flame-ink:#1c1404; --flame-soft:#3a2f15; --flame-text:#f4c766;
-    --sky1:#1f2f2c; --sky2:#5d6650; --sun:#f2dab0; --ridge3:#55705c; --ridge2:#3a5c47; --ridge1:#22432f; --pine:#132b20;
-    --forest:#0c1712; --forest-ink:#e7ece5; --forest-muted:#a9bcaf;
-    --sea:#1e302a; --land:#2e3a2f; --coast:#5f735c; --ring:#a4b39b;
-    --t0:#c3a7d4; --t1:#93c79e; --t2:#d9bd72; --t3:#e79b78; --t4:#a9b2e6;
+    --bg:#1a1511; --surface:#241d17; --ink:#f2e9dd; --muted:#c0ae9b; --line:#3b3129;
+    --accent:#9ed0ad; --accent-ink:#10201a;
+    --flame:#f4ae48; --flame-ink:#2a1606; --flame-soft:#3e2d18; --flame-text:#f6c877;
+    --sky1:#2a2233; --sky2:#6a4a3d; --sun:#f6d9a8; --ridge3:#5b4a46; --ridge2:#3d4539; --ridge1:#273627; --pine:#18251b;
+    --water:#2f5560; --steam:#d8cbb8;
+    --forest:#120e0b; --forest-ink:#f2e9dd; --forest-muted:#c6b5a1;
+    --sea:#22302c; --land:#302821; --coast:#6c5e4c; --ring:#b2a28c;
+    --t0:#c9aed8; --t1:#9bcfa5; --t2:#ddc078; --t3:#eaa07c; --t4:#adb5e8;
+    --shadow:0 1px 2px rgb(0 0 0 / .25); --shadow-lift:0 6px 20px rgb(0 0 0 / .35); --glow:rgb(244 174 72 / .10);
   }
 }
 :root[data-theme="dark"] {
-  --bg:#111916; --surface:#19231e; --ink:#e7ece5; --muted:#aab6ae; --line:#2e3b34;
-  --accent:#8cc5a3; --accent-ink:#0d1a13;
-  --flame:#f2b53a; --flame-ink:#1c1404; --flame-soft:#3a2f15; --flame-text:#f4c766;
-  --sky1:#1f2f2c; --sky2:#5d6650; --sun:#f2dab0; --ridge3:#55705c; --ridge2:#3a5c47; --ridge1:#22432f; --pine:#132b20;
-  --forest:#0c1712; --forest-ink:#e7ece5; --forest-muted:#a9bcaf;
-  --sea:#1e302a; --land:#2e3a2f; --coast:#5f735c; --ring:#a4b39b;
-  --t0:#c3a7d4; --t1:#93c79e; --t2:#d9bd72; --t3:#e79b78; --t4:#a9b2e6;
+  --bg:#1a1511; --surface:#241d17; --ink:#f2e9dd; --muted:#c0ae9b; --line:#3b3129;
+  --accent:#9ed0ad; --accent-ink:#10201a;
+  --flame:#f4ae48; --flame-ink:#2a1606; --flame-soft:#3e2d18; --flame-text:#f6c877;
+  --sky1:#2a2233; --sky2:#6a4a3d; --sun:#f6d9a8; --ridge3:#5b4a46; --ridge2:#3d4539; --ridge1:#273627; --pine:#18251b;
+  --water:#2f5560; --steam:#d8cbb8;
+  --forest:#120e0b; --forest-ink:#f2e9dd; --forest-muted:#c6b5a1;
+  --sea:#22302c; --land:#302821; --coast:#6c5e4c; --ring:#b2a28c;
+  --t0:#c9aed8; --t1:#9bcfa5; --t2:#ddc078; --t3:#eaa07c; --t4:#adb5e8;
+  --shadow:0 1px 2px rgb(0 0 0 / .25); --shadow-lift:0 6px 20px rgb(0 0 0 / .35); --glow:rgb(244 174 72 / .10);
 }
 
 /* ---------- base ---------- */
@@ -583,6 +593,38 @@ h1,h2,h3 { font-family:var(--f-display); }
 .tabbar a.on { color:var(--accent); font-weight:700; }
 .tabbar .badge { color:var(--flame-ink); font-family:var(--f-body); font-weight:700; font-size:12px; }
 
+/* ---------- warmth layer (v2) ----------
+   Softer edges, warm shadows instead of hard outlines, a faint sunset glow behind the hero
+   and a campfire glow in the vote band. Weight 800 instead of 900 so headlines feel friendlier. */
+body { background:radial-gradient(900px 420px at 88% -80px,var(--glow),transparent 70%),var(--bg); background-color:var(--bg); color:var(--ink); }
+.hero h1 { font-weight:800; letter-spacing:-.01em; }
+.section-intro h2,.results-heading h2,.proposal-heading h2,.vote h2 { font-weight:800; }
+.card h3,.tier-h .ring,.leadcard .name,.community-heading h3,.panel h3,.brand,.footer-brand > span:first-child { font-weight:800; }
+.brand-mark { border-radius:12px; }
+.btn,.theme-toggle,.search-row input,.propose input,.propose textarea,.step select,.step input[type=text] { border-radius:12px; }
+.btn.hot { box-shadow:0 4px 14px rgb(240 162 59 / .32); }
+.btn.hot:hover { box-shadow:0 6px 18px rgb(240 162 59 / .40); }
+.landscape-frame { border-radius:24px; box-shadow:var(--shadow); }
+.board,.mapcard,.panel,.proposal-section .propose,.card { border:1px solid var(--line); box-shadow:var(--shadow); }
+.stat + .stat { border-left-width:1px; }
+.card { transition:box-shadow .2s,border-color .2s; }
+.card:hover { border-color:var(--line); box-shadow:var(--shadow-lift); }
+.card.hot { border-color:color-mix(in srgb,var(--accent) 55%,var(--line)); }
+.card.picked { border-color:var(--flame); box-shadow:0 0 0 2px var(--flame),var(--shadow-lift); }
+.chip { border-width:1px; }
+.chip:not([aria-pressed="true"]):hover { background:var(--flame-soft); border-color:var(--flame); }
+.tag { background:color-mix(in srgb,var(--flame-soft) 70%,var(--surface)); }
+.drive { background:rgb(43 30 20 / .70); }
+.vc[data-zero="1"] { background:rgb(43 30 20 / .55); }
+.facts { border-color:color-mix(in srgb,var(--line) 80%,transparent); }
+.import-preview { border-width:1px; border-radius:16px; }
+.band { background:radial-gradient(700px 380px at 12% 0%,rgb(244 168 72 / .20),transparent 70%),radial-gradient(520px 300px at 95% 100%,rgb(200 96 58 / .14),transparent 70%),var(--forest); }
+.step { border-radius:16px; background:rgb(255 240 220 / .05); border-color:rgb(255 236 210 / .14); }
+.dateopt { border-radius:12px; }
+.heat .cell { border-radius:12px; }
+.gobar { border-radius:16px; box-shadow:var(--shadow-lift); }
+.tabbar { background:color-mix(in srgb,var(--surface) 94%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+
 /* ---------- tablet ---------- */
 @media (min-width:761px) and (max-width:1050px) {
   .wrap { padding-inline:28px; }
@@ -679,7 +721,7 @@ h1,h2,h3 { font-family:var(--f-display); }
   [data-device="mobile"] .footer-brand { align-items:flex-start; flex-direction:column; gap:6px; padding-block:20px; }
   [data-device="mobile"] .foot { padding-bottom:28px; }
 
-  [data-device="mobile"] .tabbar { grid-template-columns:repeat(5,minmax(0,1fr)); box-shadow:0 -4px 20px rgb(22 36 29 / .06); }
+  [data-device="mobile"] .tabbar { grid-template-columns:repeat(5,minmax(0,1fr)); box-shadow:0 -4px 20px rgb(74 46 20 / .08); }
   [data-device="mobile"] .tabbar a.on::before { content:""; position:absolute; top:-6px; width:24px; height:3px; border-radius:2px; background:var(--accent); }
 }
 
@@ -2448,7 +2490,7 @@ function updateThemeButton() {
   themeToggle.setAttribute('aria-label', dark ? '切換為淺色模式' : '切換為深色模式');
   themeToggle.title = dark ? '切換為淺色模式' : '切換為深色模式';
   const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) themeMeta.content = dark ? '#151e18' : '#f7f6f0';
+  if (themeMeta) themeMeta.content = dark ? '#1a1511' : '#f7f0e6';
 }
 themeToggle.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme || (darkPreference.matches ? 'dark' : 'light');

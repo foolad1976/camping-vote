@@ -8,7 +8,7 @@
 <meta property="og:title" content="億載金城露營投票：下一次露營去哪裡？">
 <meta property="og:description" content="41 個營區介紹、地圖和即時開票，打開就能投票，不用註冊。">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f0f2ec">
+<meta name="theme-color" content="#f7f0e6">
 <script>
 try { const theme = localStorage.getItem('campvote.theme'); if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme; } catch (e) { /* Use the system preference when storage is unavailable. */ }
 </script>
@@ -315,7 +315,7 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}html{scroll-behavior:auto}}
 </style>
-<link rel="stylesheet" href="design.css?v=20261106-1">
+<link rel="stylesheet" href="design.css?v=20261106-2">
 </head>
 <body>
 
@@ -483,7 +483,7 @@ function updateThemeButton() {
   themeToggle.setAttribute('aria-label', dark ? '切換為淺色模式' : '切換為深色模式');
   themeToggle.title = dark ? '切換為淺色模式' : '切換為深色模式';
   const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) themeMeta.content = dark ? '#151e18' : '#f7f6f0';
+  if (themeMeta) themeMeta.content = dark ? '#1a1511' : '#f7f0e6';
 }
 themeToggle.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme || (darkPreference.matches ? 'dark' : 'light');
