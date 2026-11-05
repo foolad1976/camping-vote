@@ -100,7 +100,13 @@ function extractCampPage_(html, url) {
   const rawTitle = meta['og:title'] || pageText_((html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i) || [])[1]) || pageText_((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
   const title = rawTitle.replace(/\s*[-|｜]\s*(?:營區介紹|露友評價|露營樂|愛露營).*$/, '').trim();
   const address = camp.address || nodes.map(x => x.address).find(Boolean) || '';
-  let place = typeof address === 'string' ? pageText_(address) : pageText_([address.addressRegion, address.addressLocality, address.streetAddress].filter(Boolean).join(''));
+  let place = typeof address === 'string' ? pageText_(address) : '';
+  if (address && typeof address === 'object') {
+    for (const part of [address.addressRegion, address.addressLocality, address.streetAddress].filter(Boolean).map(pageText_)) {
+      if (!place || part.indexOf(place) === 0) place = part;
+      else if (place.indexOf(part) !== 0 && !place.endsWith(part)) place += part;
+    }
+  }
   if (!place) {
     const index = html.search(/<h1\b/i);
     const body = html.slice(index < 0 ? 0 : index).replace(/<(script|style|footer|nav)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ');
