@@ -294,3 +294,63 @@ body::before { display:none; }
 }
 @media(hover:none) { .card:hover { transform:none; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+
+/* Search, sourced field notes, and a recommendation form independent of filters. */
+.search-row { display:grid; grid-template-columns:1fr auto; gap:10px 15px; align-items:center; }
+.search-row label { font-size:13px; font-weight:500; }
+.search-row input { grid-column:1/-1; width:100%; padding:13px 15px; background:var(--surface); border:1px solid var(--line); border-radius:7px; font-size:13px; color:var(--ink); }
+.search-row .recommend-link { font-size:11px; padding:0; color:var(--flame); }
+#searchCount { font-size:10px; color:var(--muted); grid-column:1/-1; }
+.catalog-note { margin:-10px 0 0; font-size:10px; color:var(--muted); line-height:1.9; }
+.review-note { border-left:2px solid var(--accent); padding:2px 0 2px 11px; }
+.review-label { font-size:10px; color:var(--accent); font-weight:700; }
+.review-note p { font-size:11px; line-height:1.9; margin:7px 0; color:var(--ink); }
+.review-note a { font-size:9px; line-height:1.8; display:block; overflow-wrap:anywhere; text-decoration-thickness:1px; text-underline-offset:3px; }
+.site-details { font-size:10px; color:var(--muted); border-block:1px solid var(--line); padding-block:8px; }
+.site-details summary { cursor:pointer; color:var(--accent); }
+.site-details p { overflow-wrap:anywhere; }
+.source-links { display:grid; gap:7px; }
+.source-links a { overflow-wrap:anywhere; }
+.facts .wide { grid-column:1/-1; }
+.drive { max-width:calc(100% - 64px); white-space:normal; text-align:right; }
+.proposal-section { display:grid; gap:22px; padding-bottom:60px; scroll-margin-top:85px; }
+.proposal-heading h2 { font-size:32px; line-height:1.5; font-weight:600; }
+.proposal-heading > p:last-child { color:var(--muted); font-size:12px; line-height:1.9; }
+.proposal-section .propose { background:var(--surface); border:1px solid var(--line); padding:28px; }
+.proposal-section .propose summary { font-size:17px; }
+.proposal-section .propose form { grid-template-columns:1fr 1fr; gap:18px 22px; }
+.propose .ptitle,.propose .import-row,.propose .import-preview,.propose .row:has(textarea),.propose form > .hint,.propose form > .actions,.propose form > .status { grid-column:1/-1; }
+.propose .ptitle { font-family:var(--f-body); font-size:13px; font-weight:500; color:var(--muted); }
+.import-input { display:flex; gap:10px; align-items:stretch; }
+.import-input input { min-width:0; flex:1; }
+.import-input .btn { flex-shrink:0; font-size:12px; }
+.import-preview { padding:20px; border:1px solid var(--line); border-radius:9px; background:var(--bg); }
+.import-preview h4 { margin:0 0 12px; font-size:14px; }
+.import-preview dl { display:grid; gap:12px; margin:0 0 18px; font-size:12px; }
+.import-preview dt { font-size:10px; color:var(--muted); }
+.import-preview dd { margin:4px 0 0; overflow-wrap:anywhere; }
+.import-preview > a { font-size:11px; margin-right:20px; }
+.import-preview .hint { margin-top:12px; }
+.community-heading h3 { font-family:var(--f-body); font-size:18px; font-weight:500; }
+.community-heading p { font-size:11px; color:var(--muted); margin:8px 0 0; }
+.proposal-section > .cards { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media(max-width:760px) {
+  [data-device="mobile"] .tabbar { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .search-row { gap:10px; }
+  .search-row label { font-size:12px; }
+  .search-row .recommend-link { font-size:10px; }
+  [data-device="mobile"] #siteSearch { font-size:16px; }
+  .catalog-note { font-size:10px; margin-top:-8px; }
+  .review-note p { font-size:12px; }
+  .review-note a { font-size:10px; }
+  .proposal-section { padding-bottom:36px; gap:18px; scroll-margin-top:16px; }
+  .proposal-heading h2 { font-size:26px; }
+  .proposal-heading > p:last-child { font-size:11px; }
+  .proposal-section .propose { padding:18px; }
+  .proposal-section .propose form { grid-template-columns:1fr; }
+  .import-input { flex-direction:column; gap:8px; }
+  .import-input .btn { justify-content:center; min-height:43px; }
+  .import-preview { padding:15px; }
+  .proposal-section .actions .btn { min-height:46px; flex:1; }
+  .proposal-section > .cards { grid-template-columns:1fr; }
+}

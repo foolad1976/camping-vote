@@ -6,7 +6,7 @@
 <title>億載金城露營投票</title>
 <meta name="description" content="以億載金城為中心、車程 1 到 4 小時的露營區介紹與投票，票最多的就是下一次露營的地點和週末。">
 <meta property="og:title" content="億載金城露營投票：下一次露營去哪裡？">
-<meta property="og:description" content="13 個營區介紹、地圖和即時開票，打開就能投票，不用註冊。">
+<meta property="og:description" content="41 個營區介紹、地圖和即時開票，打開就能投票，不用註冊。">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#f7f6f0">
 <script>
@@ -316,7 +316,7 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}html{scroll-behavior:auto}}
 </style>
-<link rel="stylesheet" href="design.css">
+<link rel="stylesheet" href="design.css?v=20261105-2">
 </head>
 <body>
 
@@ -336,7 +336,7 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
       <h1>下個週末，<br>一起<em>住進山裡。</em></h1>
       <p class="lede">把日常留在城市，把週末交給山野。<br>從億載金城出發，找個喜歡的營地，<br class="desktop-break">和想一起出發的人，決定下一站。</p>
       <div class="cta"><a class="btn hot big" href="#sites">探索營區 <span aria-hidden="true">↗</span></a><a class="text-link" href="#vote">我已經想好了，去投票 <span aria-hidden="true">→</span></a></div>
-      <div class="hero-details"><span><b class="mono">13</b> 個精選營區</span><span><b class="mono">1–4</b> 小時的風景</span><span>不用註冊，輕鬆投票</span></div>
+      <div class="hero-details"><span><b class="mono" data-site-count>41</b> 個精選營區</span><span><b class="mono">1–4</b> 小時的風景</span><span>不用註冊，輕鬆投票</span></div>
     </div>
     <div class="hero-visual">
       <div class="landscape-frame"><svg class="scene" id="heroScene" aria-hidden="true"></svg><span class="scene-label">山裡見。<small>SEE YOU OUTSIDE</small></span><span class="scene-coordinate mono">22.9880° N / 120.1593° E</span></div>
@@ -360,38 +360,43 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 </nav>
 
 <main>
-  <div class="wrap section-intro"><div><p class="eyebrow">01 / FIND YOUR NEXT ESCAPE</p><h2>找一處，想留下的風景。</h2><p>從近郊到遠山，依車程慢慢挑。喜歡哪裡，就投它一票。</p></div><span class="section-note">13 個精選營區 ＋ 1 個小彩蛋</span></div>
+  <div class="wrap section-intro"><div><p class="eyebrow">01 / FIND YOUR NEXT ESCAPE</p><h2>找一處，想留下的風景。</h2><p>從近郊到遠山，依車程慢慢挑。喜歡哪裡，就投它一票。</p></div><span class="section-note">41 個精選營區 ＋ 1 個小彩蛋</span></div>
   <div class="wrap explore" id="sites">
     <aside class="mapcol">
       <div class="mapcard" id="mapcard">
         <div class="maphead"><div><p class="eyebrow">THE LITTLE FIELD MAP</p><h2>從這裡，走遠一點。</h2></div><button type="button" class="btn maptoggle" id="mapToggle" aria-expanded="false">展開地圖</button></div>
         <svg id="map" role="img" aria-label="南台灣營區位置圖，以億載金城為中心"></svg>
         <div class="maplegend" id="legend"></div>
-        <p class="mapnote">虛線圓是直線距離 10／40／80／120 公里，點編號可以跳到該營區。這是示意圖，實際路線請按卡片上的「導航」。</p>
+        <p class="mapnote">虛線圓是直線距離 10／40／80／120 公里，點編號可以跳到該營區。僅標示已取得座標的部分營區，其餘請按卡片的「導航」。這是示意圖，非即時路線。</p>
       </div>
     </aside>
     <section class="listcol" aria-label="營區列表">
+      <div class="search-row"><label for="siteSearch">找適合這一趟的營地</label><a class="text-link recommend-link" href="#propTier">推薦私房營地 ＋</a><input id="siteSearch" type="search" placeholder="搜尋名稱、地區或特色，例如：雲海、親子、雨棚"><span id="searchCount" role="status" aria-live="polite"></span></div>
       <div class="filters" id="filters" role="group" aria-label="依車程篩選"></div>
+      <p class="catalog-note">車程為億載金城出發的規劃估計，非即時導航；請點「導航」確認當天路況。回饋為具名來源的實住經驗摘要，不代表每次入住都相同。</p>
       <div id="tiers" style="display:grid;gap:34px"></div>
-      <section class="tier" id="propTier">
-        <div class="tier-h"><span class="ring" style="color:var(--ink)"><i style="background:var(--ink)"></i>同伴新增</span><span class="sub">清單外的營區，任何人都能新增和編輯，大家一樣可以投</span></div>
-        <div class="cards" id="propCards"><p class="empty">還沒有人新增營區。</p></div>
-        <details class="propose" id="proposeBox">
-          <summary>清單裡沒有你想去的？新增一個營區</summary>
+      <p id="listEmpty" class="empty" hidden>這個範圍還沒有符合的營區。試試其他關鍵字，或在下方推薦你的私房營地。</p>
+    </section>
+  </div>
+      <section class="wrap proposal-section" id="propTier" aria-labelledby="proposalHeading">
+        <div class="proposal-heading"><p class="eyebrow">YOUR SECRET SPOT / 一起補上口袋名單</p><h2 id="proposalHeading">推薦你的私房營地。</h2><p>貼上營區網址試著自動帶入，或直接填寫下方資料。確認後才會加入大家的投票清單。</p></div>
+        <details class="propose" id="proposeBox" open>
+          <summary>填寫營區資訊</summary>
           <form id="propForm" novalidate>
             <h3 class="ptitle" id="propFormTitle">新增一個營區</h3>
+            <div class="row import-row"><label for="propUrl">營區網址（可選填）</label><div class="import-input"><input type="url" id="propUrl" maxlength="300" placeholder="https://營區官網或介紹頁"><button type="button" class="btn primary" id="importUrlBtn">讀取網址</button></div><p class="hint">貼上公開網頁網址後會嘗試讀取；官網或露營訂位頁較容易辨識，社群登入頁或短網址可能需要手動填寫。</p><div class="status" id="importStatus" role="status" aria-live="polite"></div></div>
+            <div class="import-preview" id="importPreview" hidden><h4>讀取結果預覽</h4><dl id="importPreviewFields"></dl><a id="importSource" target="_blank" rel="noopener">查看原網頁 ↗</a><button type="button" class="btn" id="applyImportBtn">帶入空白欄位</button><p class="hint">名稱、地點與簡介仍可修改；已填寫的內容不會被覆蓋。請檢查後再按「確認新增營區」。</p></div>
             <div class="row"><label for="propName">營區名稱（必填）</label><input type="text" id="propName" maxlength="40" placeholder="例如：天長地久露營區"></div>
             <div class="row"><label for="propPlace">在哪裡（必填）</label><input type="text" id="propPlace" maxlength="30" placeholder="例如：嘉義縣番路鄉"></div>
-            <div class="row"><label for="propUrl">營區網址</label><input type="url" id="propUrl" maxlength="300" placeholder="https://www.easycamp.com.tw/…"><p class="hint">貼露營樂、官網或粉專的連結，大家可以點進去看介紹。</p></div>
-            <div class="row"><label for="propReason">想去的理由</label><textarea id="propReason" rows="3" maxlength="150" placeholder="例如：有包區和滑草場，小孩會玩瘋"></textarea></div>
+            <div class="row"><label for="propReason">營區簡介／想去的理由</label><textarea id="propReason" rows="4" maxlength="150" placeholder="例如：有包區和滑草場，想帶孩子一起去；也可以填衛浴、環境與路況心得。"></textarea></div>
             <p class="hint">任何人都可以新增營區，也可以編輯別人新增的資料。網頁上不能刪除，每次修改都會留下紀錄。新增的營區不會畫在地圖上，但有 Google 地圖和導航按鈕。</p>
-            <div class="actions"><button type="submit" class="btn primary" id="propSubmit">新增營區</button><button type="button" class="btn" id="propWithdraw" hidden>取消編輯</button></div>
+            <div class="actions"><button type="submit" class="btn primary" id="propSubmit">確認新增營區</button><button type="button" class="btn" id="propWithdraw" hidden>取消編輯</button></div>
             <div class="status" id="propStatus" role="status" aria-live="polite"></div>
           </form>
         </details>
+        <div class="community-heading"><h3>露友推薦的營地</h3><p>新增後會出現在這裡，也能從投票選單選取。</p></div>
+        <div class="cards" id="propCards"><p class="empty">還沒有人新增營區，來分享你的第一個口袋名單。</p></div>
       </section>
-    </section>
-  </div>
 
   <section class="band" id="vote">
     <div class="wrap">
@@ -433,7 +438,7 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 
   <div class="wrap foot">
     <div class="footer-brand"><span>週末入山 <small>CAMP TOGETHER</small></span><span>生活偶爾離線，美好一直在線。</span></div>
-    營區資料整理自臺南市政府觀光旅遊局合法露營場清單（115.1.22 更新）、露營樂、各營區官網與媒體報導（2026 年 11 月查詢）。價格、營業與訂位狀況會變動，確定行程後請先打電話給營主確認。車程為一般週末路況的估計。投票和同伴新增的營區資料存在主揪的 Google 試算表。
+    營區基本資料與第一手回饋來源均附在各卡片，查核日為2026年11月5日；舊遊記已標示年代，不等同目前設施與報價。車程是億載金城出發的規劃估計，非即時導航，山路與連假可能超出分組時間。營業、設備、費用與訂位須向營區確認。投票與同伴新增資料儲存在主揪的 Google 試算表。
   </div>
 </main>
 
@@ -444,12 +449,14 @@ input[type=text],input[type=url],textarea,select{background:var(--surface);borde
 <nav class="tabbar" id="tabbar" aria-label="手機導覽">
   <a href="#sites" data-sec="sites"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20 12 5l9 15Z"/><path d="M12 20v-6"/></svg>營區</a>
   <a href="#mapcard" data-sec="mapcard" id="tabMap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-6.2-6-11a6 6 0 0 1 12 0c0 4.8-6 11-6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>地圖</a>
+  <a href="#propTier" data-sec="propTier"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>推薦</a>
   <a href="#vote" data-sec="vote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg>投票</a>
   <a href="#results" data-sec="results"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-7"/></svg>開票<span class="badge" id="tabCount" hidden>0</span></a>
 </nav>
 <div class="errbar" id="errBar" role="alert" hidden></div>
 
 <script src="config.js"></script>
+<script src="camps.js?v=20261105-2"></script>
 <script>
 /* ---------- device detection + visible error report (runs first) ---------- */
 (() => {
@@ -492,100 +499,13 @@ if (darkPreference.addEventListener) darkPreference.addEventListener('change', u
 updateThemeButton();
 const TIERS = [
   { id: 0, label: '0 小時圈', sub: '走出家門就到（我就懶）' },
-  { id: 1, label: '1 小時圈', sub: '車程 35 分到 1 小時 10 分，台南山區' },
-  { id: 2, label: '2 小時圈', sub: '車程約 1 小時 20 分到 2 小時，嘉義、屏東、高雄山區' },
-  { id: 3, label: '3 小時圈', sub: '車程約 2.5 到 3 小時，南橫與花東縱谷' },
-  { id: 4, label: '4 小時圈', sub: '車程約 3.5 到 4 小時，東海岸與中部高山' },
+  { id: 1, label: '約 1 小時圈', sub: '近郊估約 25–85 分，台南與高雄北側' },
+  { id: 2, label: '約 2 小時圈', sub: '估約 1 小時 20 分–2 小時 20 分，嘉義、雲林、屏東、高雄' },
+  { id: 3, label: '約 3 小時圈', sub: '估約 2 小時 20 分–3 小時 20 分，南投、南橫與霧台' },
+  { id: 4, label: '約 4 小時圈', sub: '估約 3 小時 20 分–4 小時 20 分，清境、武界與台東' },
 ];
-const SITES = [
-  { id:'myhome', tier:0, joke:true, name:'主揪家門口露營區', place:'主揪家門口（地址請私訊主揪）',
-    drive:'0 分鐘', alt:'跟一樓一樣高', price:'免費，但請帶飲料孝敬屋主', slots:'看門口今天停了幾台機車',
-    legal:'',
-    intro:'全台唯一不用訂位、不用塞車、忘了帶東西可以直接回屋裡拿的營區。衛浴是室內馬桶，熱水 24 小時，WiFi 滿格，冰箱就在三步之外，半夜肚子餓還能叫外送直送營位。缺點是鄰居會一直看你。',
-    tags:['零車程','室內衛浴','WiFi 滿格','外送到營位','雨天可撤退','鄰居會看'],
-    season:'下雨時營區自動升級成客廳；晚上十點後請小聲，不然會被檢舉。社區管委會是否同意，尚未確認。', q:'', src:'主揪本人親自勘查' },
-  { id:'hutoupi', tier:1, name:'虎頭埤風景區露營區', place:'台南市新化區', lat:23.0286, lon:120.3452,
-    drive:'約 35 分', alt:'約 50 m', price:'依風景區公告', slots:'149 營位',
-    legal:'臺南市府合法登記',
-    intro:'虎頭埤是清代興建的老水庫，環湖步道、吊橋和湖心景觀都在營區旁邊。風景區管理的營地，廁所、停車和水電都比較完整，離市區近，適合第一次帶小孩或新手試水溫。',
-    tags:['湖景','新手友善','設施完整','可當天往返'],
-    season:'冬天平地露營舒服，晚上約 15°C 上下。', q:'虎頭埤風景區 露營區', src:'臺南市觀旅局合法露營場清單' },
-  { id:'zoumalai', tier:1, name:'走馬瀨農場露營區', place:'台南市大內區', lat:23.1250, lon:120.4010,
-    drive:'約 50 分', alt:'低海拔', price:'依農場公告', slots:'130 營位',
-    legal:'臺南市府合法登記',
-    intro:'台南市農會經營的大型農場，遊憩面積約 120 公頃，有大片紐西蘭風情草原，露營區旁就有烤肉區和河濱戲水區。白天放風箏、野餐，晚上回營地，親子團最省心的選項。',
-    tags:['大草原','親子','烤肉','腹地大'],
-    season:'草原沒有遮蔭，白天記得帶天幕。', q:'走馬瀨農場', src:'臺南市觀旅局清單、台灣觀光資訊網' },
-  { id:'meiling', tier:1, name:'梅嶺神秘氣場露營區', place:'台南市楠西區香蕉山', lat:23.1905, lon:120.5220,
-    drive:'約 1 小時 10 分', alt:'約 300–500 m', price:'每帳 1,200 元（過年 1,500 元）', slots:'48 營位',
-    legal:'臺南市府合法登記',
-    intro:'梅嶺風景區裡唯一的合法營區。碎石草地，每帳約 5 × 8 公尺，空間大適合團露，也有小包區。可車露，分區衛浴 24 小時熱水，園區有手沖咖啡和景觀步道，白天可以走梅嶺步道。',
-    tags:['團露大空間','可車露','24h 熱水','賞螢','梅嶺步道'],
-    season:'12 月到 1 月是梅嶺賞梅季；每營位限 4 人，第 5 人起加 200 元。', q:'梅嶺神秘氣場露營區', src:'臺南市觀旅局清單、露營樂營區頁' },
-  { id:'zengwen', tier:1, name:'曾文青年活動中心', place:'台南市楠西區密枝里', lat:23.2160, lon:120.5310,
-    drive:'約 1 小時 10 分', alt:'約 200 m', price:'依中心公告', slots:'118 營位',
-    legal:'臺南市府合法登記',
-    intro:'救國團經營，就在曾文水庫旁邊。營位多、管理制度化，另有住宿房型，家裡長輩不想睡帳篷也能一起來。可以順遊曾文水庫大壩和玉井買芒果冰。',
-    tags:['水庫景觀','有住宿可搭配','團體友善'],
-    season:'冬天是水庫枯水期，湖景比夏天低一些。', q:'曾文青年活動中心', src:'臺南市觀旅局合法露營場清單' },
-
-  { id:'tianchang', tier:2, name:'天長地久露營區', place:'嘉義縣番路鄉（觸口一帶）', lat:23.4600, lon:120.5620,
-    drive:'約 1 小時 20 分', alt:'約 300–400 m', price:'每帳 1,000 元（過年 1,200）；咘咘車 2,500 元', slots:'5 個包區＋S 區、4 台露營車',
-    legal:'',
-    intro:'以小包區為主的草皮營地：紅櫻、藍天區各 4 帳（25 × 10 公尺），白雲、紫藤、黃金區各 3 帳，包區附一座 6 公尺炊事帳。有滑草區、溜滑梯和兒童遊戲區，也有 4 人免裝備的咘咘車。營本部有冰箱、微波爐、烤箱和 WiFi。離天長地久橋、觸口遊客中心很近，也是上阿里山、奮起湖的中繼站。',
-    tags:['包區','滑草','親子','免裝備露營車','有雨棚'],
-    season:'轉進營區的路很陡，低底盤車要評估；禁用電磁爐、電鍋等高耗電器材；包區訂了不能部分取消。', q:'嘉義番路 天長地久露營區', src:'露營樂營區頁（同伴提議後加入）' },
-  { id:'diaowana', tier:2, name:'鵰瓦納休閒露營區', place:'屏東縣泰武鄉', lat:22.6000, lon:120.6300,
-    drive:'約 1 小時 30 分', alt:'中低海拔', price:'約 1,200 元／帳', slots:'全區 19 區',
-    legal:'',
-    intro:'排灣族部落山邊的親子型營地，營區有戲水池、沙坑和溜滑梯，小孩放出去就停不下來。走國道 3 號下屏東後一路往山邊，開車不算累。',
-    tags:['親子','戲水池','沙坑','部落'],
-    season:'冬天戲水池可能不開，出發前問營主。', q:'鵰瓦納休閒露營區', src:'露營網站整理（業者官網報價）' },
-  { id:'gurenren', tier:2, name:'古仁人露營區', place:'屏東縣霧台鄉', lat:22.7450, lon:120.7350,
-    drive:'約 1 小時 40 分', alt:'中海拔山區', price:'平日 1,200／假日 1,500 元', slots:'A–D 區＋木屋帳',
-    legal:'',
-    intro:'魯凱族霧台山區的營地，傍晚看霧頭山、亞尼迪山的夕陽，早上神祇山的晨光把整個山谷照成金色，夜裡看星空。除了自搭帳還有雙人木屋帳和民宿房型，附近有彩虹岩壁和哈尤溪。',
-    tags:['夕陽','星空','部落文化','有木屋帳'],
-    season:'霧台是山地管制區，進山要在檢查哨登記，記得帶身分證。電話 0933-939-312。', q:'古仁人露營區 霧台', src:'古仁人露營區官網' },
-  { id:'zhenfeng', tier:2, name:'振峰製茶所營地', place:'嘉義縣梅山鄉太平村', lat:23.5570, lon:120.5980,
-    drive:'約 1 小時 50 分', alt:'約 1,000 m', price:'需洽營主', slots:'四層營地，每層 7–8 帳',
-    legal:'',
-    intro:'1983 年創立的老茶廠，把曬茶場改成四層階梯營地，在太平國小正對面。視野正對玉山稜線，傍晚有晚霞、清晨看日出和雲海，人數剛好可以包場。走路就到太平老街和太平雲梯。',
-    tags:['雲海','日出','可包場','茶園','太平雲梯'],
-    season:'秋冬是雲海季，夜裡山上約 10°C，帶厚睡袋。訂位方式要先查營區粉專。', q:'振峰製茶所 梅山 太平', src:'天下雜誌《微笑台灣》報導' },
-  { id:'yuanshan', tier:2, name:'遠山望月溫泉營區', place:'高雄市六龜區寶來', lat:23.1070, lon:120.7030,
-    drive:'約 2 小時', alt:'約 500 m', price:'需洽營區', slots:'約 6 公頃園區',
-    legal:'',
-    intro:'在寶來花賞溫泉公園裡，露營加泡湯一次滿足。有豪華狩獵帳、露營車和自搭帳，部分營帳附專屬湯屋。後山可以走到浦來溪頭社戰道，俯瞰溪谷。',
-    tags:['溫泉','狩獵帳','露營車','賞花'],
-    season:'冬天泡湯最舒服，1 月有梅花；3–4 月花旗木最美。電話 07-688-3361。', q:'寶來花賞溫泉公園 遠山望月', src:'Bella 儂儂、高雄市府刊物' },
-
-  { id:'meiyuan', tier:3, name:'梅園野營秘境', place:'高雄市桃源區梅山口（南橫）', lat:23.2720, lon:120.8300,
-    drive:'約 2 小時 40 分', alt:'約 1,000 m 以上', price:'需洽營區粉專', slots:'—',
-    legal:'報導稱高雄原鄉首家合法營區',
-    intro:'南橫公路梅山口的布農族營地，三面環山、荖濃溪從旁流過，視野很開。營區有一整排梅樹，可以預約布農風味餐、洗愛玉、標本 DIY。',
-    tags:['溪谷','梅花','布農文化','風味餐'],
-    season:'12 月到 1 月梅花季。南橫山路彎多，出發前查道路通阻。', q:'梅園野營秘境 桃源', src:'天下雜誌《微笑台灣》、高雄市府刊物' },
-  { id:'xuanmu', tier:3, name:'軒沐居', place:'台東縣鹿野鄉高台路', lat:22.9150, lon:121.1400,
-    drive:'約 3 小時 10 分', alt:'約 350 m', price:'線上訂位頁查詢', slots:'包區最多 8 帳',
-    legal:'業者自述合法登記',
-    intro:'就在鹿野高台下方，有自搭帳區也有免搭帳（2 人、4 人帳）。冰箱、飲水機、烤肉架免費用，24 小時熱水，原住民工藝師手作的木頭遊具區。順遊初鹿牧場、池上伯朗大道。',
-    tags:['花東縱谷','免搭帳','寵物友善','親子'],
-    season:'走南迴公路約 3 小時，建議排三天兩夜的連假。', q:'軒沐居 鹿野', src:'軒沐居官網' },
-
-  { id:'heilaoda', tier:4, name:'黑老大都蘭露營區', place:'台東縣東河鄉都蘭', lat:22.8770, lon:121.2360,
-    drive:'約 3 小時 30 分', alt:'海邊', price:'需洽營區', slots:'—',
-    legal:'',
-    intro:'走路三分鐘就到都蘭海邊。白天租衝浪板下水，晚上躺在躺椅上看星空，營區裡還有小酒吧。導航搜尋「都蘭觀海公園」就到。',
-    tags:['海景','衝浪','星空','酒吧'],
-    season:'冬天東北季風海風大，營釘要帶夠。電話 0932-723-706。', q:'黑老大都蘭露營區', src:'露營網站與媒體報導' },
-  { id:'swiss', tier:4, name:'清境小瑞士花園', place:'南投縣仁愛鄉定遠新村', lat:24.0590, lon:121.1600,
-    drive:'約 3 小時 40 分', alt:'約 1,750 m', price:'森林區 1,000–1,200／星空區 1,200–1,500 元', slots:'40 營位＋免搭帳',
-    legal:'',
-    intro:'6 公頃的北歐風花園，有湖、水舞台和開闊山景。森林區是 3 × 3 公尺木棧板雨棚，星空區 3 × 5 公尺而且是唯一能車露的區。也有 2、4、10 人免搭帳房型，適合怕冷的人。',
-    tags:['高海拔','星空','雨棚營位','免搭帳'],
-    season:'冬天夜溫可能接近 0°C；熱水只供應 18:00–22:00，大門 21:00–09:00 管制。', q:'清境小瑞士花園', src:'露營樂營區頁' },
-];
+const SITES = window.CAMP_SITES;
+document.querySelectorAll('[data-site-count]').forEach(node => { node.textContent = SITES.filter(site => !site.joke).length; });
 let siteNo = 0;
 const SITE_BY_ID = Object.assign(Object.create(null), Object.fromEntries(SITES.map((s) => [s.id, Object.assign(s, { n: s.joke ? 0 : ++siteNo })])));
 const proposals = new Map(); // proposer id -> {name, place, url, reason, at}
@@ -632,7 +552,7 @@ const mapsUrl = (q) => 'https://www.google.com/maps/search/?api=1&query=' + enco
 const dirUrl = (q) => 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent('億載金城 台南') + '&destination=' + encodeURIComponent(q) + '&travelmode=driving';
 
 /* ---------- generated landscapes ---------- */
-const SCENES = { myhome:'home', hutoupi:'lake', zoumalai:'meadow', meiling:'forest', zengwen:'lake', tianchang:'meadow', diaowana:'river', gurenren:'mountain', zhenfeng:'tea', yuanshan:'spring', meiyuan:'river', xuanmu:'meadow', heilaoda:'sea', swiss:'alpine' };
+const SCENES = Object.fromEntries(SITES.map(site => [site.id, site.motif || 'meadow']));
 function rng(seed) { let x = (seed >>> 0) || 1; return () => { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; }; }
 function hash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 function ridgeFn(w, base, amp, r, peaky) {
@@ -799,7 +719,7 @@ function drawMap() {
 const cardEls = {};
 function drawFilters() {
   const f = $('filters');
-  const opts = [{ id: -1, label: `全部 ${SITES.length} 處` }, ...TIERS.map((t) => ({ id: t.id, label: t.label }))];
+  const opts = [{ id: -1, label: `全部 ${SITES.filter(site => !site.joke).length} 處＋彩蛋` }, ...TIERS.map((t) => ({ id: t.id, label: `${t.label} · ${SITES.filter(site => site.tier === t.id).length}` }))];
   for (const o of opts) {
     f.append(el('button', { type: 'button', class: 'chip', 'aria-pressed': String(o.id === filterTier), 'data-t': o.id,
       onclick: () => { filterTier = o.id; applyFilter(); } },
@@ -807,17 +727,26 @@ function drawFilters() {
   }
 }
 function applyFilter() {
+  const query = $('siteSearch').value.trim().toLowerCase();
+  let count = 0;
   for (const b of $('filters').children) b.setAttribute('aria-pressed', String(+b.dataset.t === filterTier));
-  for (const sec of $('tiers').children) sec.hidden = filterTier !== -1 && +sec.dataset.t !== filterTier;
-  $('propTier').hidden = filterTier !== -1;
-  for (const site of SITES) if (pinEls[site.id]) pinEls[site.id].g.classList.toggle('dim', filterTier !== -1 && site.tier !== filterTier);
+  for (const site of SITES) {
+    const text = [site.name, site.place, site.intro, site.review, ...(site.tags || [])].join(' ').toLowerCase();
+    const matches = (filterTier === -1 || site.tier === filterTier) && (!query || text.includes(query));
+    cardEls[site.id].card.hidden = !matches;
+    if (matches) count++;
+    if (pinEls[site.id]) pinEls[site.id].g.classList.toggle('dim', !matches);
+  }
+  for (const sec of $('tiers').children) sec.hidden = ![...sec.querySelectorAll('.card')].some(card => !card.hidden);
+  $('listEmpty').hidden = count > 0;
+  $('searchCount').textContent = `顯示 ${count} 處`;
 }
 function drawList() {
   const root = $('tiers');
   for (const t of [...TIERS.filter((x) => x.id !== 0), TIERS.find((x) => x.id === 0)]) {
     const cards = el('div', { class: 'cards' });
     for (const site of SITES.filter((x) => x.tier === t.id)) {
-      const dist = (site.lat == null ? 0 : km(ORIGIN, site)).toFixed(0);
+      const dist = site.lat == null ? null : km(ORIGIN, site).toFixed(0);
       const tc = tierColor(site.tier);
       const pick = el('button', { type: 'button', class: 'btn pick', 'aria-pressed': 'false', text: '選這裡', onclick: () => pickSite(site.id, true) });
       const count = el('span', { class: 'vc', 'data-zero': '1', text: '0 票' });
@@ -831,15 +760,17 @@ function drawList() {
         el('div', { class: 'body', style: `--tc:${tc}` },
           el('h3', { text: site.name }), el('div', { class: 'place', text: site.place }),
           el('dl', { class: 'facts' },
-            el('div', null, el('dt', { text: '直線距離' }), el('dd', { text: dist + ' km' })),
+            el('div', null, el('dt', { text: '出發車程' }), el('dd', { text: site.drive })),
             el('div', null, el('dt', { text: '海拔' }), el('dd', { text: site.alt })),
             el('div', { class: 'wide' }, el('dt', { text: '營位' }), el('dd', { text: site.slots })),
-            el('div', { class: 'wide' }, el('dt', { text: '價格' }), el('dd', { text: site.price }))),
+            el('div', { class: 'wide' }, el('dt', { text: '價格／查價方式' }), el('dd', { text: site.price }))),
           el('p', { class: 'intro', text: site.intro }),
           el('button', { type: 'button', class: 'more', text: '看完整介紹', onclick: (e) => {
             const c = e.currentTarget.closest('.card'); c.classList.toggle('expanded');
             e.currentTarget.textContent = c.classList.contains('expanded') ? '收起介紹' : '看完整介紹'; } }),
           el('div', { class: 'tags' }, site.legal ? el('span', { class: 'tag legal', text: '✓ ' + site.legal }) : null, site.tags.map((g) => el('span', { class: 'tag', text: g }))),
+          site.review ? el('div', { class: 'review-note' }, el('span', { class: 'review-label', text: '露友回饋筆記' }), el('p', { text: site.review }), el('a', { href: site.reviewSource.url, target: '_blank', rel: 'noopener', text: `${site.reviewSource.title} · ${site.reviewSource.year} ↗` })) : null,
+          site.address ? el('details', { class: 'site-details' }, el('summary', { text: '地址與資料來源' }), el('p', { text: site.address }), dist ? el('p', { text: '直線距離約 ' + dist + ' km（不是道路距離）' }) : null, el('div', { class: 'source-links' }, site.sources.map(source => el('a', { href: source.url, target: '_blank', rel: 'noopener', text: source.title + ' ↗' })))) : null,
           el('p', { class: 'season', text: site.season }),
           el('div', { class: 'actions' }, pick,
             site.joke ? el('span', { class: 'tag', text: '導航：開門，右轉，到了' }) : null,
@@ -862,7 +793,9 @@ function hot(id, on) {
 }
 function focusCard(id) {
   const site = SITE_BY_ID[id];
-  if (filterTier !== -1 && filterTier !== site.tier) { filterTier = -1; applyFilter(); }
+  $('siteSearch').value = '';
+  if (filterTier !== -1 && filterTier !== site.tier) filterTier = -1;
+  applyFilter();
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   cardEls[id].card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
   hot(id, true); setTimeout(() => hot(id, false), 1600);
@@ -999,6 +932,7 @@ function errMsg(e) {
   if (c === 'full') return '名單已滿，請通知主揪整理。';
   if (c === 'busy') return '同時太多人在送，請再按一次。';
   if (c === 'invalid') return '沒送出去：' + (e.message && e.message !== 'invalid' ? e.message : '資料格式不對') + '。';
+  if (c === 'import' || c === 'importSetup') return e.message || '這個網頁無法自動讀取，請手動補填。';
   return '連線不穩沒送出去，請再按一次。';
 }
 function applyState(st) {
@@ -1048,6 +982,56 @@ async function withdraw() {
 
 /* ---------- campsites added by friends: anyone can add or edit, nobody can delete from the page ---------- */
 let propDirty = false, propSaving = false, editingPid = null;
+let importedCamp = null, importSequence = 0, importTimer = null, lastImportUrl = '';
+async function previewUrl() {
+  clearTimeout(importTimer);
+  const url = $('propUrl').value.trim();
+  if (!/^https:\/\//i.test(url) || !safeUrl(url)) { $('importStatus').textContent = '請先貼上完整的 https:// 網址。'; return; }
+  const sequence = ++importSequence;
+  lastImportUrl = url;
+  $('importUrlBtn').disabled = true; $('importPreview').hidden = true;
+  $('importStatus').textContent = '正在讀取公開網頁，通常需要數秒…';
+  try {
+    const result = await api('previewCamp', { url });
+    if (sequence !== importSequence || $('propUrl').value.trim() !== url) return;
+    const data = result.preview;
+    if (!data || typeof data.name !== 'string') throw new ApiError('import', '讀不到營區資料，請手動填寫。');
+    importedCamp = { name: data.name.slice(0, 40), place: String(data.place || '').slice(0, 30), reason: String(data.reason || '').slice(0, 150) };
+    $('importPreviewFields').replaceChildren(...[['營區名稱', importedCamp.name], ['地點', importedCamp.place || '未辨識，請自行補填'], ['簡介', importedCamp.reason || '未辨識，可自行補充']].map(([key, value]) => el('div', null, el('dt', { text: key }), el('dd', { text: value }))));
+    $('importSource').href = safeUrl(data.url) || url;
+    $('importPreview').hidden = false;
+    $('importStatus').textContent = '讀取完成，請檢查下方預覽，再按「帶入空白欄位」。';
+  } catch (e) {
+    if (sequence === importSequence) $('importStatus').textContent = errMsg(e) + ' 網址已保留，下方仍可直接填寫。';
+  } finally {
+    if (sequence === importSequence) $('importUrlBtn').disabled = false;
+  }
+}
+function applyImportedCamp() {
+  if (!importedCamp) return;
+  let count = 0;
+  for (const [field, value] of [['propName', importedCamp.name], ['propPlace', importedCamp.place], ['propReason', importedCamp.reason]]) {
+    if (!$(field).value.trim() && value) { $(field).value = value; count++; }
+  }
+  propDirty = true;
+  $('importStatus').textContent = count ? `已帶入 ${count} 個空白欄位。請確認內容、補上缺少的地點，再按「確認新增營區」。` : '已保留你填寫的內容，沒有覆蓋任何欄位。';
+}
+function openProposalForm() {
+  $('propTier').hidden = false;
+  $('proposeBox').open = true;
+  $('propTier').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+document.querySelectorAll('a[href="#propTier"]').forEach(link => link.addEventListener('click', () => openProposalForm()));
+window.addEventListener('hashchange', () => { if (location.hash === '#propTier') openProposalForm(); });
+$('siteSearch').addEventListener('input', applyFilter);
+$('importUrlBtn').addEventListener('click', previewUrl);
+$('applyImportBtn').addEventListener('click', applyImportedCamp);
+$('propUrl').addEventListener('input', () => {
+  clearTimeout(importTimer);
+  importSequence++; $('importUrlBtn').disabled = false; $('importPreview').hidden = true; importedCamp = null;
+  const url = $('propUrl').value.trim();
+  if (/^https:\/\//i.test(url) && safeUrl(url) && url !== lastImportUrl) importTimer = setTimeout(previewUrl, 800);
+});
 const propCardIds = new Set();
 const isHexId = (v) => typeof v === 'string' && /^[0-9a-f]{16}$/.test(v);
 const nickOf = (id) => ((votes.get(id) || {}).nick || '露友') + (id && id === myId ? '（你）' : '');
@@ -1100,10 +1084,11 @@ function fillPropForm(p) {
 }
 function resetPropForm() {
   editingPid = null; propDirty = false; fillPropForm(null);
-  $('propSubmit').textContent = '新增營區';
+  $('propSubmit').textContent = '確認新增營區';
   $('propWithdraw').hidden = true;
   $('propFormTitle').textContent = '新增一個營區';
   for (const c of $('propCards').children) c.classList.remove('editing');
+  importedCamp = null; importSequence++; clearTimeout(importTimer); lastImportUrl = ''; $('importUrlBtn').disabled = false; $('importPreview').hidden = true; $('importStatus').textContent = '';
 }
 function startEdit(pid) {
   const p = proposals.get(pid); if (!p) return;
@@ -1251,10 +1236,10 @@ if ('IntersectionObserver' in window) {
   const seen = new Map();
   const io = new IntersectionObserver((es) => {
     for (const e of es) seen.set(e.target.id, e.isIntersecting);
-    const cur = ['results', 'vote', 'mapcard', 'sites'].find((id) => seen.get(id));
+    const cur = ['results', 'vote', 'propTier', 'mapcard', 'sites'].find((id) => seen.get(id));
     tabLinks.forEach((a) => a.classList.toggle('on', a.dataset.sec === cur));
   }, { rootMargin: '-45% 0px -45% 0px' });
-  ['sites', 'mapcard', 'vote', 'results'].forEach((id) => io.observe($(id)));
+  ['sites', 'mapcard', 'propTier', 'vote', 'results'].forEach((id) => io.observe($(id)));
 }
 const inapp = document.documentElement.dataset.inapp;
 if (inapp) {
@@ -1265,6 +1250,7 @@ if (inapp) {
 /* ---------- boot ---------- */
 scene($('heroScene'), { w: 1440, h: 640, seed: 20261105, motif: 'hero', hero: true });
 drawMap(); drawFilters(); drawList(); drawForm(); applyFilter(); renderVotes(); setMode('loading');
+if (location.hash === '#propTier') openProposalForm();
 
 const note = $('loadNote');
 async function refresh() {

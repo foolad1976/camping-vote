@@ -19,9 +19,8 @@ const MAX_HISTORY = 3000;     // history 超過就刪最舊的
 const RATE_PER_DEVICE = 12;   // 每支手機每分鐘最多寫入次數
 const RATE_GLOBAL = 150;      // 全站每分鐘最多寫入次數
 
-// 網頁上固定的營區代號（index.html 的 SITES）。新增或移除固定營區時，兩邊要一起改。
-const SITE_IDS = ['myhome', 'hutoupi', 'zoumalai', 'meiling', 'zengwen', 'tianchang', 'diaowana', 'gurenren',
-  'zhenfeng', 'yuanshan', 'meiyuan', 'xuanmu', 'heilaoda', 'swiss'];
+// 與 camps.js 由同一份研究資料產生，避免新增營區後無法投票。
+const SITE_IDS = CAMP_CATALOG.map(site => site.id);
 
 const COLUMNS = {
   votes: ['id', 'site', 'dates', 'nick', 'updatedAt'],
@@ -45,7 +44,7 @@ function setup() {
 
 function doGet() {
   // 健康檢查：瀏覽器直接開部署網址會看到目前票況（不含任何金鑰）
-  return json_({ ok: true, state: readState_('') });
+  return json_({ ok: true, version: '2026-11-05.3', capabilities: ['previewCamp'], state: readState_('') });
 }
 
 function doPost(e) {
@@ -64,6 +63,7 @@ function doPost(e) {
   try {
     switch (req.action) {
       case 'state': return json_({ ok: true, state: readState_(id) });
+      case 'previewCamp': return json_({ ok: true, preview: previewCamp_(id, req.url) });
       case 'vote': return write_(id, () => upsert_('votes', id, voteRow_(id, req), MAX_VOTES));
       case 'unvote': return write_(id, () => remove_('votes', id));
       case 'propose': return write_(id, () => createProposal_(id, req));

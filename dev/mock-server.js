@@ -75,12 +75,24 @@ const ctx = vm.createContext({
     formatDate: (d) => d.toISOString().slice(0, 10),
   },
   Session: { getScriptTimeZone: () => 'Asia/Taipei' },
+  UrlFetchApp: { fetch: (url) => {
+    // Deterministic fixtures: local QA never fetches arbitrary external sites.
+    const u = new URL(url);
+    if (u.hostname === 'dns.google') {
+      const host = u.searchParams.get('name');
+      const answer = u.searchParams.get('type') === 'A' ? [{ type: 1, data: host === 'private.example.com' ? '127.0.0.1' : '93.184.216.34' }] : [];
+      return { getContentText: () => JSON.stringify({ Status: 0, Answer: answer }) };
+    }
+    const fixture = '<!doctype html><html><head><meta property="og:title" content="測試山林露營區"><meta name="description" content="草地營位、親子沙坑與山景；預約前請確認營位尺寸。"><script type="application/ld+json">{"@type":"Campground","name":"測試山林露營區","address":{"addressRegion":"南投縣","addressLocality":"國姓鄉","streetAddress":"山林路1號"}}</script></head><body><h1>測試山林露營區</h1></body></html>';
+    const redirect = u.pathname === '/redirect';
+    return { getResponseCode: () => redirect ? 302 : u.pathname === '/blocked' ? 403 : 200, getHeaders: () => redirect ? { Location: 'https://private.example.com/camp' } : { 'Content-Type': 'text/html; charset=utf-8' }, getContent: () => Buffer.from(fixture), getContentText: () => fixture };
+  } },
   ContentService: {
     MimeType: { JSON: 'json' },
     createTextOutput: (s) => ({ body: s, setMimeType() { return this; } }),
   },
 });
-vm.runInContext(fs.readFileSync(path.join(ROOT, 'apps-script', 'Code.gs'), 'utf8'), ctx, { filename: 'Code.gs' });
+vm.runInContext(['Catalog.gs', 'Code.gs', 'Importer.gs'].map(name => fs.readFileSync(path.join(ROOT, 'apps-script', name), 'utf8')).join('\n'), ctx, { filename: 'backend.gs' });
 
 /* ---------- http ---------- */
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json' };
