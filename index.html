@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>億載金城露營投票</title>
+<meta name="description" content="以億載金城為中心、車程 1 到 4 小時的露營區介紹與投票，票最多的就是下一次露營的地點和週末。">
+<meta property="og:title" content="億載金城露營投票：下一次露營去哪裡？">
+<meta property="og:description" content="13 個營區介紹、地圖和即時開票，打開就能投票，不用註冊。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: sunset-ridge hero with live scoreboard → sticky tab nav → sticky map + illustrated campsite cards → forest-green vote band → podium results.
+   Every campsite card carries a generated landscape banner (lake / meadow / tea terraces / sea …) tinted by its drive-time ring. */
+:root{
+  --bg:#EEF4EE; --surface:#FFFFFF; --ink:#12231B; --muted:#55695D; --line:#D3DFD5;
+  --accent:#0E7A6B; --accent-ink:#FFFFFF; --flame:#EE5A1C; --flame-ink:#FFFFFF; --flame-soft:#FFE4D3;
+  --sky1:#FFD37C; --sky2:#FF8C64; --sun:#FFF4CC; --star-op:0;
+  --ridge3:#A9C9AE; --ridge2:#5F9E7C; --ridge1:#245E46; --pine:#1A4A37; --water:#7CC3D0; --steam:#FFFFFF;
+  --forest:#123B2D; --forest-ink:#EAF6EF; --forest-muted:#A9C7B6;
+  --sea:#CFE3E8; --land:#E3EBDD; --coast:#98B0A0; --ring:#6F8578;
+  --t0:#6A55D8; --t1:#0FA196; --t2:#5FAE2E; --t3:#EE9B06; --t4:#D6417A;
+  --ok:#1F8A50; --warn:#B45309;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:18px; --shadow:0 1px 2px rgb(0 0 0 / .05),0 10px 28px -14px rgb(0 0 0 / .22);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1310; --surface:#14201A; --ink:#E5F0E8; --muted:#95AA9C; --line:#24352C;
+  --accent:#3CC6AA; --accent-ink:#04120C; --flame:#FF7637; --flame-ink:#1A0A02; --flame-soft:#3A1E10;
+  --sky1:#141B42; --sky2:#3B2D5E; --sun:#F3EFCF; --star-op:1;
+  --ridge3:#2C3A55; --ridge2:#1C2C34; --ridge1:#12221B; --pine:#0B1913; --water:#244B60; --steam:#C8D6E2;
+  --forest:#0A1D15; --forest-ink:#E5F0E8; --forest-muted:#93B1A0;
+  --sea:#0D1B20; --land:#1B2620; --coast:#3C5247; --ring:#7F9488;
+  --t0:#A898FF; --t1:#3FD0C2; --t2:#94D35A; --t3:#FFBE3D; --t4:#F27BA9;
+  --ok:#62D195; --warn:#F5B65A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0B1310; --surface:#14201A; --ink:#E5F0E8; --muted:#95AA9C; --line:#24352C;
+  --accent:#3CC6AA; --accent-ink:#04120C; --flame:#FF7637; --flame-ink:#1A0A02; --flame-soft:#3A1E10;
+  --sky1:#141B42; --sky2:#3B2D5E; --sun:#F3EFCF; --star-op:1;
+  --ridge3:#2C3A55; --ridge2:#1C2C34; --ridge1:#12221B; --pine:#0B1913; --water:#244B60; --steam:#C8D6E2;
+  --forest:#0A1D15; --forest-ink:#E5F0E8; --forest-muted:#93B1A0;
+  --sea:#0D1B20; --land:#1B2620; --coast:#3C5247; --ring:#7F9488;
+  --t0:#A898FF; --t1:#3FD0C2; --t2:#94D35A; --t3:#FFBE3D; --t4:#F27BA9;
+  --ok:#62D195; --warn:#F5B65A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+.card.editing{border-color:var(--accent)}
+.ptitle{font-size:19px;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--surface)}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2;font-weight:400}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+section[id],article[id]{scroll-margin-top:70px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;isolation:isolate}
+.hero .scene{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.hero .wrap{padding-block:52px 40px;display:grid;gap:18px}
+.kicker{display:inline-flex;align-self:start;justify-self:start;gap:8px;align-items:center;background:color-mix(in srgb,var(--surface) 75%,transparent);backdrop-filter:blur(6px);border-radius:999px;padding:4px 14px 4px 6px;font-size:13px;font-weight:500}
+.kicker b{background:var(--flame);color:var(--flame-ink);border-radius:999px;padding:1px 10px;font-weight:700}
+.hero h1{font-size:clamp(44px,9vw,96px);line-height:1.02;letter-spacing:.01em}
+.hero h1 em{font-style:normal;color:var(--flame)}
+.hero .lede{max-width:46ch;margin:0;font-size:16.5px;font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:clamp(40px,10vw,120px)}
+.stat{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(8px);border-radius:var(--r);padding:14px 18px;box-shadow:var(--shadow);min-width:0}
+.stat .k{font-size:12.5px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+.stat .v{font-family:var(--f-display);font-size:clamp(20px,2.6vw,28px);line-height:1.25;overflow-wrap:anywhere}
+.stat .v small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.stat.lead{background:var(--flame);color:var(--flame-ink)}
+.stat.lead .k,.stat.lead .v small{color:inherit;opacity:.85}
+.loadnote{font-size:13px;color:var(--warn);background:var(--surface);border-radius:8px;padding:4px 10px;justify-self:start}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:4px;padding-block:8px;overflow-x:auto;scrollbar-width:none}
+.nav a{text-decoration:none;color:var(--ink);font-weight:500;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.nav a:hover{background:var(--bg)}
+.nav .navcount{margin-left:auto;white-space:nowrap;font-size:13px;color:var(--muted)}
+.nav .navcount b{color:var(--flame);font-family:var(--f-mono)}
+
+/* ---------- buttons ---------- */
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 15px;cursor:pointer;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,border-color .15s}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.btn.hot{background:var(--flame);color:var(--flame-ink);border-color:var(--flame);font-weight:700}
+.btn.big{padding:11px 22px;font-size:16px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.pick{flex:1 1 100%;justify-content:center;padding:9px 15px;font-weight:700;border-color:var(--flame);color:var(--flame)}
+.btn.pick[aria-pressed="true"]{background:var(--flame);color:var(--flame-ink)}
+
+/* ---------- explore ---------- */
+.explore{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:28px;padding-block:32px}
+.mapcol{position:sticky;top:64px;align-self:start}
+.mapcard{background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.mapcard h2{font-size:22px;margin:2px 4px 10px}
+.mapcard svg{display:block;width:100%;height:auto;max-height:72vh;border-radius:12px}
+.maplegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:10px}
+.maplegend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.mapnote{font-size:12px;color:var(--muted);margin:6px 0 0}
+.pin-g{cursor:pointer}
+.pin-g circle.p{stroke:var(--surface);stroke-width:2;transition:r .15s}
+.pin-g text{font-family:var(--f-mono);font-size:11px;font-weight:600;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.pin-g.dim{opacity:.2}
+.pin-g.hot circle.p{stroke:var(--ink);stroke-width:3}
+.pin-g .badge{fill:var(--flame)}
+.pin-g .badge-t{fill:#fff;font-size:10px}
+
+.listcol{min-width:0;display:grid;gap:30px;align-content:start}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14px;font-weight:500;display:inline-flex;gap:7px;align-items:center}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tier{display:grid;gap:14px}
+.tier-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tier-h .ring{font-family:var(--f-display);font-size:28px;display:flex;align-items:center;gap:10px}
+.tier-h .ring i{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 5px color-mix(in srgb,currentColor 18%,transparent)}
+.tier-h .sub{font-size:13.5px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
+
+.card{background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;border:2px solid transparent;transition:border-color .2s,transform .2s}
+.card.hot{border-color:var(--ink);transform:translateY(-2px)}
+.card.picked{border-color:var(--flame)}
+.banner{position:relative;aspect-ratio:16/6;max-width:100%;overflow:hidden}
+.banner svg{display:block;width:100%;height:100%}
+.num{position:absolute;left:12px;top:12px;width:36px;height:36px;border-radius:50%;color:#fff;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:15px;box-shadow:0 0 0 3px rgb(255 255 255 / .8)}
+.num.p{background:#1D2A24;font-family:var(--f-display);font-size:16px}
+.drive{position:absolute;right:12px;top:12px;background:rgb(10 20 15 / .55);color:#fff;border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:500;backdrop-filter:blur(4px)}
+.vc{position:absolute;right:12px;bottom:10px;background:var(--flame);color:#fff;border-radius:999px;padding:2px 12px;font-weight:700;font-size:13px;font-family:var(--f-mono)}
+.vc[data-zero="1"]{background:rgb(10 20 15 / .5)}
+.card .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+.card h3{font-size:22px}
+.place{font-size:13px;color:var(--muted);margin-top:-6px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;font-size:13px;margin:0;padding:10px 12px;background:var(--bg);border-radius:12px}
+.facts div{min-width:0}
+.facts dt{color:var(--muted);font-size:11.5px;letter-spacing:.04em}
+.facts dd{margin:0;font-weight:500;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.facts .wide{grid-column:1 / -1}
+.intro{margin:0;font-size:14.5px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;border-radius:999px;padding:2px 10px;background:color-mix(in srgb,var(--tc,var(--accent)) 14%,transparent);color:var(--ink);font-weight:500}
+.tag.legal{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);font-weight:700}
+.season{font-size:13px;margin:0;padding:8px 12px;border-radius:10px;background:var(--flame-soft);color:var(--ink)}
+.season::before{content:"出發前注意　";font-weight:700;color:var(--warn)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:auto;padding-top:4px}
+.actions .btn:not(.pick){font-size:13px;padding:6px 12px}
+.src{font-size:11.5px;color:var(--muted);margin:0}
+.by{font-size:13px;color:var(--muted);margin-top:-6px}
+
+/* proposals */
+.propose{background:var(--surface);border:2px dashed var(--line);border-radius:var(--r);padding:16px 20px}
+.propose summary{cursor:pointer;font-family:var(--f-display);font-size:20px;list-style:none;display:flex;align-items:center;gap:10px}
+.propose summary::-webkit-details-marker{display:none}
+.propose summary::before{content:"+";display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--flame);color:var(--flame-ink);font-family:var(--f-mono);font-weight:600;flex:none}
+.propose[open] summary::before{content:"−"}
+.propose form{display:grid;gap:12px;margin-top:14px}
+.propose .row{display:grid;gap:4px}
+.propose label{font-size:14px;font-weight:500}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+input[type=text],input[type=url],textarea,select{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;max-width:100%;color:var(--ink)}
+.propose input,.propose textarea{width:100%;background:var(--bg)}
+.status{min-height:1.6em;font-size:14px;color:var(--muted)}
+.status.ok{color:var(--ok)} .status.err{color:var(--warn)}
+.empty{color:var(--muted);font-size:14px;margin:0}
+
+/* ---------- vote band ---------- */
+.band{background:var(--forest);color:var(--forest-ink);position:relative;overflow:hidden}
+.band::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 100% 0%,transparent 0 46px,rgb(255 255 255 / .05) 46px 47px);pointer-events:none}
+.band .wrap{position:relative;padding-block:48px}
+.vote{display:grid;gap:22px;max-width:860px}
+.vote h2{font-size:clamp(32px,5vw,46px)}
+.vote .sub{color:var(--forest-muted);margin:-10px 0 0}
+.step{display:grid;gap:10px;background:rgb(255 255 255 / .06);border:1px solid rgb(255 255 255 / .12);border-radius:var(--r);padding:16px 18px}
+.step .h{font-weight:700;font-size:16px;display:flex;align-items:center;gap:10px}
+.step .h .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--flame);color:var(--flame-ink);font-family:var(--f-mono);font-size:14px;flex:none}
+.step select,.step input[type=text]{width:100%;background:var(--surface);color:var(--ink);border-color:transparent}
+.dates{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.dateopt{position:relative;display:grid;gap:0;justify-items:start;border:1.5px solid rgb(255 255 255 / .2);border-radius:14px;padding:10px 12px;cursor:pointer;background:rgb(255 255 255 / .04);transition:background .15s,border-color .15s}
+.dateopt input{position:absolute;opacity:0;pointer-events:none}
+.dateopt .m{font-size:12px;color:var(--forest-muted)}
+.dateopt .d{font-family:var(--f-display);font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums}
+.dateopt .w{font-size:12px;color:var(--forest-muted)}
+.dateopt .hn{position:absolute;right:8px;top:8px;font-size:10.5px;background:var(--t3);color:#1A1200;border-radius:999px;padding:0 7px;font-weight:700}
+.dateopt.on{background:var(--flame);border-color:var(--flame);color:#fff}
+.dateopt.on .m,.dateopt.on .w{color:rgb(255 255 255 / .85)}
+.dateopt:has(input:focus-visible){outline:3px solid var(--t3);outline-offset:2px}
+.notice{border:1.5px dashed var(--t3);border-radius:14px;padding:12px 14px;font-size:14px}
+.notice b{color:var(--t3)}
+.band .status{color:var(--forest-muted)}
+.band .status.ok{color:#7FE0A8} .band .status.err{color:#FFC27A}
+.band .btn:not(.primary):not(.hot){background:transparent;color:var(--forest-ink);border-color:rgb(255 255 255 / .3)}
+
+/* ---------- results ---------- */
+.results{display:grid;gap:20px;padding-block:48px}
+.results > h2{font-size:clamp(32px,5vw,46px)}
+.podium{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}
+.leadcard{border-radius:var(--r);overflow:hidden;position:relative;min-height:220px;display:flex;align-items:flex-end;box-shadow:var(--shadow);isolation:isolate;background:var(--surface)}
+.leadcard svg{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.leadcard .in{padding:18px 20px;margin:14px;background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(8px);border-radius:14px;display:grid;gap:2px;max-width:calc(100% - 28px)}
+.leadcard .k{font-size:12.5px;color:var(--flame);font-weight:700;letter-spacing:.06em}
+.leadcard .name{font-family:var(--f-display);font-size:clamp(24px,3.4vw,34px);line-height:1.2;overflow-wrap:anywhere}
+.leadcard .meta{font-size:14px;color:var(--muted)}
+.panel{background:var(--surface);border-radius:var(--r);padding:18px 20px;min-width:0;box-shadow:var(--shadow)}
+.panel h3{font-size:21px;margin-bottom:12px}
+.bars{display:grid;gap:11px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;font-size:14px}
+.bar .lab{overflow-wrap:anywhere}
+.bar .cnt{font-family:var(--f-mono);font-weight:600}
+.bar .track{grid-column:1 / -1;height:10px;border-radius:5px;background:var(--bg);overflow:hidden}
+.bar .fill{height:100%;border-radius:5px;transition:width .4s}
+.bar.lead .lab{font-weight:700}
+.heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.heat .cell{border-radius:12px;padding:8px 10px;background:color-mix(in srgb,var(--flame) var(--h,0%),var(--bg));display:grid;gap:0}
+.heat .cell .d{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+.heat .cell .c{font-family:var(--f-mono);font-size:20px;font-weight:600}
+.heat .cell .c small{font-family:var(--f-body);font-size:11.5px;font-weight:400}
+.heat .cell.lead{outline:2.5px solid var(--flame);outline-offset:1px}
+.voters{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.voter{display:flex;align-items:center;gap:8px;border-radius:999px;padding:3px 14px 3px 3px;font-size:13.5px;background:var(--bg);max-width:100%}
+.voter img,.voter .av{width:28px;height:28px;border-radius:50%;flex:none}
+.voter .vs{color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);padding-block:10px 60px}
+
+/* floating go-to-vote bar */
+.gobar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:35;background:var(--ink);color:var(--bg);
+  border-radius:999px;padding:10px 12px 10px 18px;display:flex;gap:12px;align-items:center;font-size:14px;box-shadow:0 10px 30px -8px rgb(0 0 0 / .45);max-width:calc(100% - 32px)}
+.gobar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.gobar a{background:var(--flame);color:var(--flame-ink);font-weight:700;text-decoration:none;border-radius:999px;padding:6px 14px;white-space:nowrap}
+
+@media (max-width:900px){
+  .explore{grid-template-columns:minmax(0,1fr)}
+  .mapcol{position:static}
+  .mapcard svg{max-height:62vh;margin:0 auto}
+  .podium{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:620px){
+  .board{grid-template-columns:minmax(0,1fr)}
+  .stat{padding:10px 14px}
+}
+/* ---------- older mobile browsers without color-mix ---------- */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .kicker,.stat,.leadcard .in,.nav{background:var(--surface)}
+  .stat.lead{background:var(--flame)}
+  .tag,.tag.legal,.heat .cell{background:var(--bg)}
+  .heat .cell.lead{background:var(--flame-soft)}
+  .tier-h .ring i{box-shadow:none}
+}
+
+/* ---------- phone mode (set by script: html[data-device="mobile"]) ---------- */
+.tabbar,.maptoggle,.more{display:none}
+.inapp{background:var(--t3);color:#1A1200;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:500}
+.errbar{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));z-index:60;background:#B42318;color:#fff;border-radius:12px;padding:10px 14px;font-size:13px}
+[data-device="mobile"] body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+[data-device="mobile"] .nav{display:none}
+[data-device="mobile"] .tabbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:36;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar a{display:grid;justify-items:center;align-content:center;gap:2px;font-size:11.5px;font-weight:500;color:var(--muted);text-decoration:none;min-height:50px;position:relative}
+.tabbar a svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a.on{color:var(--flame)}
+.tabbar .badge{position:absolute;top:2px;left:calc(50% + 7px);background:var(--flame);color:#fff;border-radius:999px;font-size:10px;padding:0 6px;font-family:var(--f-mono);line-height:16px}
+[data-device="mobile"] .hero .wrap{padding-block:22px 18px;gap:14px}
+[data-device="mobile"] .hero h1{font-size:clamp(40px,12vw,58px)}
+[data-device="mobile"] .hero .lede{font-size:14.5px}
+[data-device="mobile"] .cta .btn{flex:1 1 0;justify-content:center}
+[data-device="mobile"] .board{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:84px;gap:10px;scrollbar-width:none;padding-bottom:4px}
+[data-device="mobile"] .stat{flex:0 0 74%;scroll-snap-align:start}
+[data-device="mobile"] .explore{grid-template-columns:minmax(0,1fr);padding-block:18px;gap:18px}
+[data-device="mobile"] .mapcol{position:static}
+[data-device="mobile"] .mapcard{padding:12px 14px}
+[data-device="mobile"] .maphead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+[data-device="mobile"] .mapcard h2{margin:0;font-size:20px}
+[data-device="mobile"] .maptoggle{display:inline-flex}
+[data-device="mobile"] .mapcard:not(.open) svg,[data-device="mobile"] .mapcard:not(.open) .maplegend,[data-device="mobile"] .mapcard:not(.open) .mapnote{display:none}
+[data-device="mobile"] .mapcard.open svg{margin-top:10px;max-height:none}
+[data-device="mobile"] .filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;background:var(--bg);padding-block:8px}
+[data-device="mobile"] .chip{white-space:nowrap;flex:none}
+[data-device="mobile"] .tier-h .ring{font-size:24px}
+[data-device="mobile"] .cards{grid-template-columns:minmax(0,1fr);gap:14px}
+[data-device="mobile"] .banner{aspect-ratio:16/7}
+[data-device="mobile"] .card .body{padding:12px 14px 14px}
+[data-device="mobile"] .card:not(.expanded) .intro{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+[data-device="mobile"] .card:not(.expanded) .src{display:none}
+[data-device="mobile"] .more{display:inline-block;align-self:flex-start;background:none;border:0;padding:4px 0;color:var(--accent);font-weight:700;font-size:14px;cursor:pointer;margin-top:-6px}
+[data-device="mobile"] .actions .btn:not(.pick){flex:1 1 40%;justify-content:center;min-height:42px}
+[data-device="mobile"] .btn.pick{min-height:46px;font-size:15.5px}
+[data-device="mobile"] .band .wrap{padding-block:30px}
+[data-device="mobile"] .step{padding:14px}
+[data-device="mobile"] .dates{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+[data-device="mobile"] .dateopt{padding:8px 9px}
+[data-device="mobile"] .dateopt .d{font-size:19px}
+[data-device="mobile"] .vote .actions .btn{flex:1 1 100%;justify-content:center}
+[data-device="mobile"] .results{padding-block:30px}
+[data-device="mobile"] .podium{grid-template-columns:minmax(0,1fr)}
+[data-device="mobile"] .heat{grid-template-columns:repeat(3,minmax(0,1fr))}
+[data-device="mobile"] .gobar{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+[data-device="mobile"] section[id],[data-device="mobile"] article[id]{scroll-margin-top:62px}
+[data-device="mobile"] input[type=text],[data-device="mobile"] input[type=url],[data-device="mobile"] textarea,[data-device="mobile"] select{font-size:16px}
+[data-device="mobile"] .card.hot{transform:none}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="scene" id="heroScene" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="inapp" id="inappTip" hidden></div>
+    <div class="kicker"><b>出發點</b>台南安平・億載金城</div>
+    <h1>下一次<br><em>露營</em>去哪裡？</h1>
+    <p class="lede">依車程畫出 1 到 4 小時四圈，挑了 13 個營區，外加一個惡搞選項。每人投一個營地、勾可以出發的週末，票最多的就是下一趟。清單外有想去的，也能自己新增。</p>
+    <div class="cta"><a class="btn hot big" href="#sites">逛營區</a><a class="btn big" href="#vote">直接投票</a></div>
+    <div class="board" id="summary">
+      <div class="stat"><div class="k">已投票</div><div class="v" id="sumCount">— <small>人</small></div></div>
+      <div class="stat lead"><div class="k">目前領先營地</div><div class="v" id="sumSite">等第一票</div></div>
+      <div class="stat"><div class="k">最多人能去的週末</div><div class="v" id="sumDate">等第一票</div></div>
+    </div>
+    <div class="loadnote" id="loadNote" hidden></div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="頁面導覽">
+  <div class="wrap">
+    <a href="#sites">營區</a><a href="#mapcard">地圖</a><a href="#propTier">新增營區</a><a href="#vote">投票</a><a href="#results">開票</a>
+    <span class="navcount" id="navCount"><b>0</b> 人已投</span>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap explore" id="sites">
+    <aside class="mapcol">
+      <div class="mapcard" id="mapcard">
+        <div class="maphead"><h2>營區在哪裡</h2><button type="button" class="btn maptoggle" id="mapToggle" aria-expanded="false">展開地圖</button></div>
+        <svg id="map" role="img" aria-label="南台灣營區位置圖，以億載金城為中心"></svg>
+        <div class="maplegend" id="legend"></div>
+        <p class="mapnote">虛線圓是直線距離 10／40／80／120 公里，點編號可以跳到該營區。這是示意圖，實際路線請按卡片上的「導航」。</p>
+      </div>
+    </aside>
+    <section class="listcol" aria-label="營區列表">
+      <div class="filters" id="filters" role="group" aria-label="依車程篩選"></div>
+      <div id="tiers" style="display:grid;gap:34px"></div>
+      <section class="tier" id="propTier">
+        <div class="tier-h"><span class="ring" style="color:var(--ink)"><i style="background:var(--ink)"></i>同伴新增</span><span class="sub">清單外的營區，任何人都能新增和編輯，大家一樣可以投</span></div>
+        <div class="cards" id="propCards"><p class="empty">還沒有人新增營區。</p></div>
+        <details class="propose" id="proposeBox">
+          <summary>清單裡沒有你想去的？新增一個營區</summary>
+          <form id="propForm" novalidate>
+            <h3 class="ptitle" id="propFormTitle">新增一個營區</h3>
+            <div class="row"><label for="propName">營區名稱（必填）</label><input type="text" id="propName" maxlength="40" placeholder="例如：天長地久露營區"></div>
+            <div class="row"><label for="propPlace">在哪裡（必填）</label><input type="text" id="propPlace" maxlength="30" placeholder="例如：嘉義縣番路鄉"></div>
+            <div class="row"><label for="propUrl">營區網址</label><input type="url" id="propUrl" maxlength="300" placeholder="https://www.easycamp.com.tw/…"><p class="hint">貼露營樂、官網或粉專的連結，大家可以點進去看介紹。</p></div>
+            <div class="row"><label for="propReason">想去的理由</label><textarea id="propReason" rows="3" maxlength="150" placeholder="例如：有包區和滑草場，小孩會玩瘋"></textarea></div>
+            <p class="hint">任何人都可以新增營區，也可以編輯別人新增的資料。網頁上不能刪除，每次修改都會留下紀錄。新增的營區不會畫在地圖上，但有 Google 地圖和導航按鈕。</p>
+            <div class="actions"><button type="submit" class="btn primary" id="propSubmit">新增營區</button><button type="button" class="btn" id="propWithdraw" hidden>取消編輯</button></div>
+            <div class="status" id="propStatus" role="status" aria-live="polite"></div>
+          </form>
+        </details>
+      </section>
+    </section>
+  </div>
+
+  <section class="band" id="vote">
+    <div class="wrap">
+      <form class="vote" id="voteForm" novalidate>
+        <h2>投下你的一票</h2>
+        <p class="sub">三步驟，之後想改隨時回來改。</p>
+        <div class="notice" id="modeNotice" hidden></div>
+        <div class="step">
+          <label class="h" for="siteSelect"><span class="n">1</span>想去哪個營地（單選）</label>
+          <select id="siteSelect"></select>
+        </div>
+        <div class="step">
+          <div class="h"><span class="n">2</span>哪些週末你可以出發（可複選）</div>
+          <div class="dates" id="dates"></div>
+        </div>
+        <div class="step">
+          <label class="h" for="nick"><span class="n">3</span>暱稱（必填，顯示在投票名單上）</label>
+          <input type="text" id="nick" maxlength="20" placeholder="例如：阿松">
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn hot big" id="submitBtn">送出投票</button>
+          <button type="button" class="btn" id="withdrawBtn" hidden>撤回我的票</button>
+        </div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="wrap results" id="results">
+    <h2>即時開票</h2>
+    <div class="podium">
+      <div class="leadcard" id="leadcard"></div>
+      <div class="panel"><h3>營地得票</h3><div class="bars" id="siteBars"></div></div>
+    </div>
+    <div class="panel"><h3>每個週末能出發的人數</h3><div class="heat" id="dateBars"></div></div>
+    <div class="panel"><h3>誰投了</h3><ul class="voters" id="voters"></ul></div>
+  </section>
+
+  <div class="wrap foot">
+    營區資料整理自臺南市政府觀光旅遊局合法露營場清單（115.1.22 更新）、露營樂、各營區官網與媒體報導（2026 年 11 月查詢）。價格、營業與訂位狀況會變動，確定行程後請先打電話給營主確認。車程為一般週末路況的估計。投票和同伴新增的營區資料存在主揪的 Google 試算表。
+  </div>
+</main>
+
+<div class="gobar" id="gobar" hidden>
+  <span id="gobarText"></span><a href="#vote">去投票 →</a>
+</div>
+
+<nav class="tabbar" id="tabbar" aria-label="手機導覽">
+  <a href="#sites" data-sec="sites"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20 12 5l9 15Z"/><path d="M12 20v-6"/></svg>營區</a>
+  <a href="#mapcard" data-sec="mapcard" id="tabMap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-6.2-6-11a6 6 0 0 1 12 0c0 4.8-6 11-6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>地圖</a>
+  <a href="#vote" data-sec="vote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg>投票</a>
+  <a href="#results" data-sec="results"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-7"/></svg>開票<span class="badge" id="tabCount" hidden>0</span></a>
+</nav>
+<div class="errbar" id="errBar" role="alert" hidden></div>
+
+<script src="config.js"></script>
+<script>
+/* ---------- device detection + visible error report (runs first) ---------- */
+(() => {
+  const root = document.documentElement;
+  const ua = navigator.userAgent || '';
+  const narrow = window.matchMedia ? window.matchMedia('(max-width: 760px)') : null;
+  const coarse = window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false;
+  const phoneUA = /iPhone|iPod|Android.+Mobile|Mobile Safari|Windows Phone|Line\//i.test(ua);
+  const apply = () => { root.dataset.device = (narrow && narrow.matches) || (phoneUA && coarse) ? 'mobile' : 'desktop'; };
+  apply();
+  if (narrow) { if (narrow.addEventListener) narrow.addEventListener('change', apply); else if (narrow.addListener) narrow.addListener(apply); }
+  root.dataset.inapp = / Line\//i.test(ua) ? 'line' : /FBAN|FBAV|Instagram/i.test(ua) ? 'fb' : '';
+  const show = (msg) => {
+    msg = String(msg || '未知錯誤');
+    if (/ResizeObserver|^Script error/i.test(msg)) return;
+    const b = document.getElementById('errBar'); if (!b) return;
+    b.hidden = false; b.textContent = '頁面有部分功能沒載入成功，請截圖給主揪：' + msg.slice(0, 140);
+  };
+  window.addEventListener('error', (e) => show(e.message));
+  window.addEventListener('unhandledrejection', (e) => show(e.reason && e.reason.message ? e.reason.message : e.reason));
+})();
+(() => {
+const ORIGIN = { name: '億載金城', lat: 22.9880, lon: 120.1593 };
+const TIERS = [
+  { id: 0, label: '0 小時圈', sub: '走出家門就到（我就懶）' },
+  { id: 1, label: '1 小時圈', sub: '車程 35 分到 1 小時 10 分，台南山區' },
+  { id: 2, label: '2 小時圈', sub: '車程約 1 小時 20 分到 2 小時，嘉義、屏東、高雄山區' },
+  { id: 3, label: '3 小時圈', sub: '車程約 2.5 到 3 小時，南橫與花東縱谷' },
+  { id: 4, label: '4 小時圈', sub: '車程約 3.5 到 4 小時，東海岸與中部高山' },
+];
+const SITES = [
+  { id:'myhome', tier:0, joke:true, name:'主揪家門口露營區', place:'主揪家門口（地址請私訊主揪）',
+    drive:'0 分鐘', alt:'跟一樓一樣高', price:'免費，但請帶飲料孝敬屋主', slots:'看門口今天停了幾台機車',
+    legal:'',
+    intro:'全台唯一不用訂位、不用塞車、忘了帶東西可以直接回屋裡拿的營區。衛浴是室內馬桶，熱水 24 小時，WiFi 滿格，冰箱就在三步之外，半夜肚子餓還能叫外送直送營位。缺點是鄰居會一直看你。',
+    tags:['零車程','室內衛浴','WiFi 滿格','外送到營位','雨天可撤退','鄰居會看'],
+    season:'下雨時營區自動升級成客廳；晚上十點後請小聲，不然會被檢舉。社區管委會是否同意，尚未確認。', q:'', src:'主揪本人親自勘查' },
+  { id:'hutoupi', tier:1, name:'虎頭埤風景區露營區', place:'台南市新化區', lat:23.0286, lon:120.3452,
+    drive:'約 35 分', alt:'約 50 m', price:'依風景區公告', slots:'149 營位',
+    legal:'臺南市府合法登記',
+    intro:'虎頭埤是清代興建的老水庫，環湖步道、吊橋和湖心景觀都在營區旁邊。風景區管理的營地，廁所、停車和水電都比較完整，離市區近，適合第一次帶小孩或新手試水溫。',
+    tags:['湖景','新手友善','設施完整','可當天往返'],
+    season:'冬天平地露營舒服，晚上約 15°C 上下。', q:'虎頭埤風景區 露營區', src:'臺南市觀旅局合法露營場清單' },
+  { id:'zoumalai', tier:1, name:'走馬瀨農場露營區', place:'台南市大內區', lat:23.1250, lon:120.4010,
+    drive:'約 50 分', alt:'低海拔', price:'依農場公告', slots:'130 營位',
+    legal:'臺南市府合法登記',
+    intro:'台南市農會經營的大型農場，遊憩面積約 120 公頃，有大片紐西蘭風情草原，露營區旁就有烤肉區和河濱戲水區。白天放風箏、野餐，晚上回營地，親子團最省心的選項。',
+    tags:['大草原','親子','烤肉','腹地大'],
+    season:'草原沒有遮蔭，白天記得帶天幕。', q:'走馬瀨農場', src:'臺南市觀旅局清單、台灣觀光資訊網' },
+  { id:'meiling', tier:1, name:'梅嶺神秘氣場露營區', place:'台南市楠西區香蕉山', lat:23.1905, lon:120.5220,
+    drive:'約 1 小時 10 分', alt:'約 300–500 m', price:'每帳 1,200 元（過年 1,500 元）', slots:'48 營位',
+    legal:'臺南市府合法登記',
+    intro:'梅嶺風景區裡唯一的合法營區。碎石草地，每帳約 5 × 8 公尺，空間大適合團露，也有小包區。可車露，分區衛浴 24 小時熱水，園區有手沖咖啡和景觀步道，白天可以走梅嶺步道。',
+    tags:['團露大空間','可車露','24h 熱水','賞螢','梅嶺步道'],
+    season:'12 月到 1 月是梅嶺賞梅季；每營位限 4 人，第 5 人起加 200 元。', q:'梅嶺神秘氣場露營區', src:'臺南市觀旅局清單、露營樂營區頁' },
+  { id:'zengwen', tier:1, name:'曾文青年活動中心', place:'台南市楠西區密枝里', lat:23.2160, lon:120.5310,
+    drive:'約 1 小時 10 分', alt:'約 200 m', price:'依中心公告', slots:'118 營位',
+    legal:'臺南市府合法登記',
+    intro:'救國團經營，就在曾文水庫旁邊。營位多、管理制度化，另有住宿房型，家裡長輩不想睡帳篷也能一起來。可以順遊曾文水庫大壩和玉井買芒果冰。',
+    tags:['水庫景觀','有住宿可搭配','團體友善'],
+    season:'冬天是水庫枯水期，湖景比夏天低一些。', q:'曾文青年活動中心', src:'臺南市觀旅局合法露營場清單' },
+
+  { id:'tianchang', tier:2, name:'天長地久露營區', place:'嘉義縣番路鄉（觸口一帶）', lat:23.4600, lon:120.5620,
+    drive:'約 1 小時 20 分', alt:'約 300–400 m', price:'每帳 1,000 元（過年 1,200）；咘咘車 2,500 元', slots:'5 個包區＋S 區、4 台露營車',
+    legal:'',
+    intro:'以小包區為主的草皮營地：紅櫻、藍天區各 4 帳（25 × 10 公尺），白雲、紫藤、黃金區各 3 帳，包區附一座 6 公尺炊事帳。有滑草區、溜滑梯和兒童遊戲區，也有 4 人免裝備的咘咘車。營本部有冰箱、微波爐、烤箱和 WiFi。離天長地久橋、觸口遊客中心很近，也是上阿里山、奮起湖的中繼站。',
+    tags:['包區','滑草','親子','免裝備露營車','有雨棚'],
+    season:'轉進營區的路很陡，低底盤車要評估；禁用電磁爐、電鍋等高耗電器材；包區訂了不能部分取消。', q:'嘉義番路 天長地久露營區', src:'露營樂營區頁（同伴提議後加入）' },
+  { id:'diaowana', tier:2, name:'鵰瓦納休閒露營區', place:'屏東縣泰武鄉', lat:22.6000, lon:120.6300,
+    drive:'約 1 小時 30 分', alt:'中低海拔', price:'約 1,200 元／帳', slots:'全區 19 區',
+    legal:'',
+    intro:'排灣族部落山邊的親子型營地，營區有戲水池、沙坑和溜滑梯，小孩放出去就停不下來。走國道 3 號下屏東後一路往山邊，開車不算累。',
+    tags:['親子','戲水池','沙坑','部落'],
+    season:'冬天戲水池可能不開，出發前問營主。', q:'鵰瓦納休閒露營區', src:'露營網站整理（業者官網報價）' },
+  { id:'gurenren', tier:2, name:'古仁人露營區', place:'屏東縣霧台鄉', lat:22.7450, lon:120.7350,
+    drive:'約 1 小時 40 分', alt:'中海拔山區', price:'平日 1,200／假日 1,500 元', slots:'A–D 區＋木屋帳',
+    legal:'',
+    intro:'魯凱族霧台山區的營地，傍晚看霧頭山、亞尼迪山的夕陽，早上神祇山的晨光把整個山谷照成金色，夜裡看星空。除了自搭帳還有雙人木屋帳和民宿房型，附近有彩虹岩壁和哈尤溪。',
+    tags:['夕陽','星空','部落文化','有木屋帳'],
+    season:'霧台是山地管制區，進山要在檢查哨登記，記得帶身分證。電話 0933-939-312。', q:'古仁人露營區 霧台', src:'古仁人露營區官網' },
+  { id:'zhenfeng', tier:2, name:'振峰製茶所營地', place:'嘉義縣梅山鄉太平村', lat:23.5570, lon:120.5980,
+    drive:'約 1 小時 50 分', alt:'約 1,000 m', price:'需洽營主', slots:'四層營地，每層 7–8 帳',
+    legal:'',
+    intro:'1983 年創立的老茶廠，把曬茶場改成四層階梯營地，在太平國小正對面。視野正對玉山稜線，傍晚有晚霞、清晨看日出和雲海，人數剛好可以包場。走路就到太平老街和太平雲梯。',
+    tags:['雲海','日出','可包場','茶園','太平雲梯'],
+    season:'秋冬是雲海季，夜裡山上約 10°C，帶厚睡袋。訂位方式要先查營區粉專。', q:'振峰製茶所 梅山 太平', src:'天下雜誌《微笑台灣》報導' },
+  { id:'yuanshan', tier:2, name:'遠山望月溫泉營區', place:'高雄市六龜區寶來', lat:23.1070, lon:120.7030,
+    drive:'約 2 小時', alt:'約 500 m', price:'需洽營區', slots:'約 6 公頃園區',
+    legal:'',
+    intro:'在寶來花賞溫泉公園裡，露營加泡湯一次滿足。有豪華狩獵帳、露營車和自搭帳，部分營帳附專屬湯屋。後山可以走到浦來溪頭社戰道，俯瞰溪谷。',
+    tags:['溫泉','狩獵帳','露營車','賞花'],
+    season:'冬天泡湯最舒服，1 月有梅花；3–4 月花旗木最美。電話 07-688-3361。', q:'寶來花賞溫泉公園 遠山望月', src:'Bella 儂儂、高雄市府刊物' },
+
+  { id:'meiyuan', tier:3, name:'梅園野營秘境', place:'高雄市桃源區梅山口（南橫）', lat:23.2720, lon:120.8300,
+    drive:'約 2 小時 40 分', alt:'約 1,000 m 以上', price:'需洽營區粉專', slots:'—',
+    legal:'報導稱高雄原鄉首家合法營區',
+    intro:'南橫公路梅山口的布農族營地，三面環山、荖濃溪從旁流過，視野很開。營區有一整排梅樹，可以預約布農風味餐、洗愛玉、標本 DIY。',
+    tags:['溪谷','梅花','布農文化','風味餐'],
+    season:'12 月到 1 月梅花季。南橫山路彎多，出發前查道路通阻。', q:'梅園野營秘境 桃源', src:'天下雜誌《微笑台灣》、高雄市府刊物' },
+  { id:'xuanmu', tier:3, name:'軒沐居', place:'台東縣鹿野鄉高台路', lat:22.9150, lon:121.1400,
+    drive:'約 3 小時 10 分', alt:'約 350 m', price:'線上訂位頁查詢', slots:'包區最多 8 帳',
+    legal:'業者自述合法登記',
+    intro:'就在鹿野高台下方，有自搭帳區也有免搭帳（2 人、4 人帳）。冰箱、飲水機、烤肉架免費用，24 小時熱水，原住民工藝師手作的木頭遊具區。順遊初鹿牧場、池上伯朗大道。',
+    tags:['花東縱谷','免搭帳','寵物友善','親子'],
+    season:'走南迴公路約 3 小時，建議排三天兩夜的連假。', q:'軒沐居 鹿野', src:'軒沐居官網' },
+
+  { id:'heilaoda', tier:4, name:'黑老大都蘭露營區', place:'台東縣東河鄉都蘭', lat:22.8770, lon:121.2360,
+    drive:'約 3 小時 30 分', alt:'海邊', price:'需洽營區', slots:'—',
+    legal:'',
+    intro:'走路三分鐘就到都蘭海邊。白天租衝浪板下水，晚上躺在躺椅上看星空，營區裡還有小酒吧。導航搜尋「都蘭觀海公園」就到。',
+    tags:['海景','衝浪','星空','酒吧'],
+    season:'冬天東北季風海風大，營釘要帶夠。電話 0932-723-706。', q:'黑老大都蘭露營區', src:'露營網站與媒體報導' },
+  { id:'swiss', tier:4, name:'清境小瑞士花園', place:'南投縣仁愛鄉定遠新村', lat:24.0590, lon:121.1600,
+    drive:'約 3 小時 40 分', alt:'約 1,750 m', price:'森林區 1,000–1,200／星空區 1,200–1,500 元', slots:'40 營位＋免搭帳',
+    legal:'',
+    intro:'6 公頃的北歐風花園，有湖、水舞台和開闊山景。森林區是 3 × 3 公尺木棧板雨棚，星空區 3 × 5 公尺而且是唯一能車露的區。也有 2、4、10 人免搭帳房型，適合怕冷的人。',
+    tags:['高海拔','星空','雨棚營位','免搭帳'],
+    season:'冬天夜溫可能接近 0°C；熱水只供應 18:00–22:00，大門 21:00–09:00 管制。', q:'清境小瑞士花園', src:'露營樂營區頁' },
+];
+let siteNo = 0;
+const SITE_BY_ID = Object.fromEntries(SITES.map((s) => [s.id, Object.assign(s, { n: s.joke ? 0 : ++siteNo })]));
+const proposals = new Map(); // proposer id -> {name, place, url, reason, at}
+function siteInfo(id) {
+  if (SITE_BY_ID[id]) return SITE_BY_ID[id];
+  if (typeof id === 'string' && id.startsWith('p:')) {
+    const p = proposals.get(id.slice(2));
+    if (p) return { id, n: '新', name: p.name, place: p.place, proposal: true };
+  }
+  return null;
+}
+const siteName = (id) => { const x = siteInfo(id); return !x ? '已移除的營區' : x.proposal ? `${x.name}（同伴新增）` : `${x.n}. ${x.name}`; };
+const allSiteIds = () => [...SITES.map((x) => x.id), ...[...proposals.keys()].map((u) => 'p:' + u)];
+
+/* ---------- helpers ---------- */
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null) e.append(k);
+  return e;
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+function s(tag, attrs, ...kids) {
+  const e = document.createElementNS(SVGNS, tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  for (const k of kids) if (k != null) e.append(k);
+  return e;
+}
+function km(a, b) {
+  const R = 6371, rad = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * rad, dLon = (b.lon - a.lon) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const tierColor = (t) => `var(--t${t})`;
+const mapsUrl = (q) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+const dirUrl = (q) => 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent('億載金城 台南') + '&destination=' + encodeURIComponent(q) + '&travelmode=driving';
+
+/* ---------- generated landscapes ---------- */
+const SCENES = { myhome:'home', hutoupi:'lake', zoumalai:'meadow', meiling:'forest', zengwen:'lake', tianchang:'meadow', diaowana:'river', gurenren:'mountain', zhenfeng:'tea', yuanshan:'spring', meiyuan:'river', xuanmu:'meadow', heilaoda:'sea', swiss:'alpine' };
+function rng(seed) { let x = (seed >>> 0) || 1; return () => { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; }; }
+function hash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function ridgeFn(w, base, amp, r, peaky) {
+  const k1 = (1.3 + r() * 1.5) * 2 * Math.PI / w, k2 = k1 * (2.2 + r()), p1 = r() * 6.28, p2 = r() * 6.28;
+  return peaky
+    ? (x) => base - amp * (0.25 + 0.75 * Math.pow(1 - Math.abs(Math.sin(x * k1 * 0.8 + p1)), 1.6) * (0.8 + 0.2 * Math.sin(x * k2 + p2)))
+    : (x) => base - amp * (0.5 + 0.3 * Math.sin(x * k1 + p1) + 0.2 * Math.sin(x * k2 + p2));
+}
+function ridgePath(x0, x1, h, f) {
+  let d = `M${x0.toFixed(1)} ${h}`;
+  const step = (x1 - x0) / 90;
+  for (let x = x0; x <= x1 + 0.01; x += step) d += ` L${x.toFixed(1)} ${f(x).toFixed(1)}`;
+  return d + ` L${x1.toFixed(1)} ${h} Z`;
+}
+const pineD = (x, y, z) => `M${x} ${y - z * 2.3} L${x - z * .5} ${y - z * 1.3} L${x - z * .28} ${y - z * 1.3} L${x - z * .75} ${y - z * .35} L${x - z * .45} ${y - z * .35} L${x - z * .95} ${y + z * .4} L${x + z * .95} ${y + z * .4} L${x + z * .45} ${y - z * .35} L${x + z * .75} ${y - z * .35} L${x + z * .28} ${y - z * 1.3} L${x + z * .5} ${y - z * 1.3} Z`;
+const tentEls = (x, y, z) => [
+  s('path', { d: `M${x - z} ${y} L${x} ${y - z * 1.15} L${x + z} ${y} Z`, style: 'fill:var(--flame)' }),
+  s('path', { d: `M${x - z * .3} ${y} L${x} ${y - z * .72} L${x + z * .3} ${y} Z`, fill: '#000', opacity: .35 })];
+const fireEls = (x, y, z) => [
+  s('circle', { cx: x, cy: y - z * .4, r: z * 3.2, style: 'fill:var(--flame)', opacity: .12 }),
+  s('circle', { cx: x, cy: y - z * .4, r: z * 1.8, style: 'fill:var(--flame)', opacity: .22 }),
+  s('path', { d: `M${x} ${y - z * 1.6} Q${x + z * .9} ${y - z * .5} ${x + z * .5} ${y} L${x - z * .5} ${y} Q${x - z * .9} ${y - z * .5} ${x} ${y - z * 1.6} Z`, style: 'fill:var(--t3)' })];
+const waveD = (x, y, len) => `M${x.toFixed(1)} ${y.toFixed(1)} q${len / 8} -4 ${len / 4} 0 t${len / 4} 0 t${len / 4} 0 t${len / 4} 0`;
+let sceneSeq = 0;
+function scene(svg, { w, h, seed, motif, tint, hero }) {
+  const r = rng(seed), uid = 'sky' + (++sceneSeq);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+  svg.replaceChildren();
+  const add = (...n) => n.flat().forEach((x) => svg.append(x));
+  add(s('defs', null, s('linearGradient', { id: uid, x1: 0, y1: 0, x2: 0, y2: 1 },
+    s('stop', { offset: '0', style: 'stop-color:var(--sky1)' }), s('stop', { offset: '1', style: 'stop-color:var(--sky2)' }))));
+  add(s('rect', { width: w, height: h, fill: `url(#${uid})` }));
+  const stars = s('g', { style: 'opacity:var(--star-op)' });
+  const phone = document.documentElement.dataset.device === 'mobile';
+  for (let i = 0; i < (hero ? (phone ? 50 : 110) : (phone ? 8 : 18)); i++) stars.append(s('circle', { cx: (r() * w).toFixed(1), cy: (r() * h * .55).toFixed(1), r: (r() * 1.2 + .3).toFixed(2), fill: 'var(--sun)' }));
+  add(stars);
+  const peaky = hero || motif === 'alpine' || motif === 'mountain';
+  add(s('circle', { cx: (w * (hero ? .76 : .5 + r() * .35)).toFixed(1), cy: (h * (hero ? .3 : .34)).toFixed(1), r: (hero ? h * .09 : h * .12).toFixed(1), fill: 'var(--sun)' }));
+  add(s('path', { d: ridgePath(0, w, h, ridgeFn(w, h * .62, h * (peaky ? .42 : .26), r, peaky)), style: 'fill:var(--ridge3)' }));
+  add(s('path', { d: ridgePath(0, w, h, ridgeFn(w, h * .76, h * (peaky ? .3 : .2), r, peaky)), style: 'fill:var(--ridge2)' }));
+  const nearStyle = 'fill:var(--ridge1)' + (tint ? `;fill:color-mix(in srgb, ${tint} 38%, var(--ridge1))` : '');
+  const near = ridgeFn(w, h * (motif === 'meadow' ? .92 : .9), h * (motif === 'meadow' ? .07 : peaky ? .16 : .12), r, false);
+  const pines = (xs, z) => add(xs.map((x) => s('path', { d: pineD(x, near(x) + z * .2, z), style: 'fill:var(--pine)' })));
+  const shimmer = (top, n, sea) => { for (let i = 0; i < n; i++) { const y = top + 8 + i * (h - top - 8) / n, x0 = r() * w * .75; add(s('path', { d: sea ? waveD(x0, y, w * .22) : `M${x0.toFixed(1)} ${y.toFixed(1)} h${(w * (.06 + r() * .14)).toFixed(1)}`, fill: 'none', stroke: 'var(--sun)', 'stroke-width': 1.6, 'stroke-linecap': 'round', opacity: .55 })); } };
+  const z = h * .07;
+  if (motif === 'lake') {
+    const top = h * .8;
+    add(s('rect', { x: 0, y: top, width: w, height: h - top, style: 'fill:var(--water)' })); shimmer(top, 4);
+    const shore = (x) => h * .86 - Math.sin(Math.min(1, x / (w * .38)) * Math.PI) * h * .1;
+    add(s('path', { d: ridgePath(0, w * .38, h, shore), style: nearStyle }));
+    add(tentEls(w * .17, shore(w * .17) + 2, z)); add(fireEls(w * .27, shore(w * .27) + 2, z * .5));
+  } else if (motif === 'sea') {
+    const top = h * .7;
+    add(s('rect', { x: 0, y: top, width: w, height: h - top, style: 'fill:var(--water)' })); shimmer(top, 5, true);
+    const cape = (x) => h * .8 - Math.sin(Math.min(1, (x - w * .62) / (w * .38)) * Math.PI / 2) * h * .14;
+    add(s('path', { d: ridgePath(w * .62, w, h, cape), style: nearStyle }));
+    add(tentEls(w * .84, cape(w * .84) + 2, z)); add(fireEls(w * .74, cape(w * .74) + 4, z * .5));
+  } else {
+    add(s('path', { d: ridgePath(0, w, h, near), style: nearStyle }));
+    if (motif === 'tea') for (let k = 1; k <= 4; k++) add(s('path', { d: ridgePath(0, w, h, (x) => near(x) + k * h * .035).replace(/^M[^L]+/, 'M0 ' + (near(0) + k * h * .035).toFixed(1) + ' ').replace(/ L[\d.]+ [\d.]+ Z$/, ''), fill: 'none', style: 'stroke:var(--ridge2)', 'stroke-width': 2.2, opacity: .8 }));
+    if (motif === 'river') add(s('path', { d: `M${w * .4} ${h} C${w * .52} ${h * .95} ${w * .44} ${h * .9} ${w * .5} ${h * .86} L${w * .53} ${h * .86} C${w * .5} ${h * .9} ${w * .62} ${h * .95} ${w * .66} ${h} Z`, style: 'fill:var(--water)' }));
+    if (motif === 'spring') {
+      add(s('ellipse', { cx: w * .5, cy: h * .95, rx: w * .14, ry: h * .05, style: 'fill:var(--water)' }));
+      for (let i = 0; i < 3; i++) { const x = w * (.44 + i * .06); add(s('path', { d: `M${x} ${h * .92} c-${z * .6} -${z * .8} ${z * .6} -${z * 1.2} 0 -${z * 2} s${z * .6} -${z * 1.2} 0 -${z * 2}`, fill: 'none', style: 'stroke:var(--steam)', 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: .75 })); }
+    }
+    if (motif === 'forest' || hero) pines(Array.from({ length: hero ? 22 : 9 }, (_, i) => (i + .3 + r() * .4) * w / (hero ? 22 : 9)).filter((x) => !(x > w * .3 && x < w * .6)), hero ? z * .9 : z * 1.1);
+    if (motif === 'mountain' || motif === 'alpine') pines([w * .06, w * .11, w * .9, w * .95], z * .9);
+    if (motif === 'home') {
+      const hx = w * .52, hw = w * .24, hh = h * .3, by = near(hx + hw / 2) + 4;
+      add(s('rect', { x: hx, y: by - hh, width: hw, height: hh, style: 'fill:var(--t0)' }));
+      add(s('path', { d: `M${hx - hw * .08} ${by - hh} L${hx + hw / 2} ${by - hh - h * .16} L${hx + hw * 1.08} ${by - hh} Z`, style: 'fill:var(--pine)' }));
+      add(s('rect', { x: hx + hw * .12, y: by - hh * .72, width: hw * .26, height: hh * .3, style: 'fill:var(--sun)' }));
+      add(s('rect', { x: hx + hw * .6, y: by - hh * .62, width: hw * .22, height: hh * .62, fill: '#000', opacity: .35 }));
+    }
+    const tx = hero ? [w * .36, w * .47] : motif === 'spring' ? [w * .2] : motif === 'river' ? [w * .24] : [w * .28];
+    tx.forEach((x, i) => add(tentEls(x, near(x) + 2, hero ? z * (1.1 - i * .2) : z)));
+    if (motif !== 'spring') add(fireEls(tx[tx.length - 1] + (hero ? h * .09 : w * .1), near(tx[tx.length - 1] + (hero ? h * .09 : w * .1)) + 2, hero ? z * .55 : z * .5));
+    if (motif === 'meadow') add(tentEls(w * .4, near(w * .4) + 2, z * .75));
+  }
+}
+
+/* ---------- weekend options ---------- */
+const WD = ['日','一','二','三','四','五','六'];
+const HOLIDAYS = { // keyed by the Saturday; long weekends that start on Friday
+  '2026-12-26': { from: -1, name: '行憲紀念日連假' },
+  '2027-01-02': { from: -1, name: '元旦連假' },
+};
+const pad = (n) => String(n).padStart(2, '0');
+const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const md = (d) => `${d.getMonth() + 1}/${d.getDate()}（${WD[d.getDay()]}）`;
+function weekendOptions() {
+  const out = [];
+  const t = new Date(); const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 5);
+  while (d.getDay() !== 6) d.setDate(d.getDate() + 1);
+  for (let i = 0; i < 10; i++) {
+    const key = iso(d); const h = HOLIDAYS[key];
+    const start = new Date(d); if (h) start.setDate(start.getDate() + h.from);
+    const end = new Date(d); end.setDate(end.getDate() + 1);
+    const sameMonth = start.getMonth() === end.getMonth();
+    out.push({ key, label: `${md(start)} – ${md(end)}`, short: `${start.getMonth() + 1}/${start.getDate()}–${end.getMonth() + 1}/${end.getDate()}`, holiday: h ? h.name + '・三天兩夜' : '',
+      tile: { m: `${start.getMonth() + 1} 月`, d: sameMonth ? `${start.getDate()}–${end.getDate()}` : `${start.getMonth() + 1}/${start.getDate()}–${end.getMonth() + 1}/${end.getDate()}`, w: `週${WD[start.getDay()]}到週${WD[end.getDay()]}` } });
+    d.setDate(d.getDate() + 7);
+  }
+  return out;
+}
+const DATES = weekendOptions();
+const DATE_BY_KEY = Object.fromEntries(DATES.map((x) => [x.key, x]));
+
+/* ---------- state ---------- */
+let db = null, user = null, myId = null, mode = 'loading';
+const votes = new Map();
+const form = { site: '', dates: new Set(), nick: '' };
+let dirty = false, filterTier = -1, saving = false;
+
+/* ---------- map ---------- */
+const LON0 = 119.95, LON1 = 121.75, LAT0 = 21.85, LAT1 = 24.35, K = 250, CX = Math.cos(23.1 * Math.PI / 180);
+const W = (LON1 - LON0) * K * CX, H = (LAT1 - LAT0) * K;
+const px = (lon, lat) => [(lon - LON0) * K * CX, (LAT1 - lat) * K];
+const COAST = [[120.55,24.6],[120.50,24.30],[120.42,24.08],[120.30,23.88],[120.20,23.73],[120.15,23.55],[120.12,23.40],[120.10,23.25],[120.07,23.12],[120.12,23.03],[120.145,22.97],[120.19,22.85],[120.25,22.70],[120.28,22.60],[120.35,22.50],[120.45,22.45],[120.55,22.39],[120.62,22.30],[120.66,22.20],[120.70,22.07],[120.72,21.95],[120.80,21.93],[120.85,21.90],[120.86,22.00],[120.88,22.12],[120.88,22.22],[120.90,22.32],[120.95,22.45],[121.00,22.60],[121.08,22.70],[121.16,22.76],[121.20,22.82],[121.25,22.90],[121.32,23.02],[121.38,23.10],[121.43,23.25],[121.48,23.40],[121.52,23.58],[121.58,23.80],[121.62,23.98],[121.66,24.15],[121.75,24.6]];
+const TOWNS = [['嘉義',23.48,120.45],['高雄',22.63,120.30],['屏東',22.67,120.49],['台東',22.76,121.14],['埔里',23.97,120.97],['恆春',22.00,120.75]];
+const pinEls = {};
+function drawMap() {
+  const svg = $('map');
+  svg.setAttribute('viewBox', `0 0 ${W.toFixed(0)} ${H.toFixed(0)}`);
+  svg.append(s('rect', { x: 0, y: 0, width: W, height: H, fill: 'var(--sea)' }));
+  svg.append(s('polygon', { points: COAST.map(([lo, la]) => px(lo, la).map((v) => v.toFixed(1)).join(',')).join(' '), fill: 'var(--land)', stroke: 'var(--coast)', 'stroke-width': 1.2 }));
+  const [lx, ly] = px(120.37, 22.34); svg.append(s('ellipse', { cx: lx, cy: ly, rx: 3, ry: 2, fill: 'var(--land)', stroke: 'var(--coast)' }));
+  const [ox, oy] = px(ORIGIN.lon, ORIGIN.lat);
+  for (const r of [10, 40, 80, 120]) {
+    const rp = r / 111.2 * K;
+    svg.append(s('circle', { cx: ox, cy: oy, r: rp, fill: 'none', stroke: 'var(--ring)', 'stroke-width': r === 40 ? 1.2 : 0.8, 'stroke-dasharray': '3 4', opacity: r === 40 ? 0.9 : 0.6 }));
+    if (r >= 40) svg.append(s('text', { x: ox, y: oy - rp - 3, 'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }, `${r} km`));
+  }
+  for (const [name, la, lo] of TOWNS) {
+    const [x, y] = px(lo, la);
+    svg.append(s('circle', { cx: x, cy: y, r: 2, fill: 'var(--muted)' }));
+    svg.append(s('text', { x: x + 4, y: y + 3, 'font-size': 10, fill: 'var(--muted)' }, name));
+  }
+  svg.append(s('rect', { x: ox - 5, y: oy - 5, width: 10, height: 10, transform: `rotate(45 ${ox} ${oy})`, fill: 'var(--flame)', stroke: 'var(--surface)', 'stroke-width': 1.5 }));
+  svg.append(s('text', { x: ox - 9, y: oy + 4, 'text-anchor': 'end', 'font-size': 11, 'font-weight': 700, fill: 'var(--ink)' }, '億載金城'));
+  for (const site of SITES) {
+    if (site.lat == null) continue;
+    const [x, y] = px(site.lon, site.lat);
+    const badge = s('g', { visibility: 'hidden' },
+      s('circle', { class: 'badge', cx: x + 10, cy: y - 10, r: 7 }),
+      s('text', { class: 'badge-t', x: x + 10, y: y - 10 }, '0'));
+    const g = s('g', { class: 'pin-g', tabindex: 0, role: 'button', 'aria-label': `${site.n}. ${site.name}` },
+      s('title', null, `${site.n}. ${site.name}（${site.drive}）`),
+      s('circle', { class: 'p', cx: x, cy: y, r: 9, fill: tierColor(site.tier) }),
+      s('text', { x, y }, String(site.n)), badge);
+    g.addEventListener('click', () => focusCard(site.id));
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focusCard(site.id); } });
+    g.addEventListener('mouseenter', () => hot(site.id, true));
+    g.addEventListener('mouseleave', () => hot(site.id, false));
+    svg.append(g);
+    pinEls[site.id] = { g, badge };
+  }
+  $('legend').append(...TIERS.filter((t) => t.id > 0).map((t) => el('span', null, el('i', { class: 'dot', style: `background:${tierColor(t.id)}` }), t.label)),
+    el('span', null, el('i', { class: 'dot', style: 'background:var(--flame)' }), '票數'));
+}
+
+/* ---------- list ---------- */
+const cardEls = {};
+function drawFilters() {
+  const f = $('filters');
+  const opts = [{ id: -1, label: `全部 ${SITES.length} 處` }, ...TIERS.map((t) => ({ id: t.id, label: t.label }))];
+  for (const o of opts) {
+    f.append(el('button', { type: 'button', class: 'chip', 'aria-pressed': String(o.id === filterTier), 'data-t': o.id,
+      onclick: () => { filterTier = o.id; applyFilter(); } },
+      o.id >= 0 ? el('i', { class: 'dot', style: `background:${tierColor(o.id)}` }) : null, o.label));
+  }
+}
+function applyFilter() {
+  for (const b of $('filters').children) b.setAttribute('aria-pressed', String(+b.dataset.t === filterTier));
+  for (const sec of $('tiers').children) sec.hidden = filterTier !== -1 && +sec.dataset.t !== filterTier;
+  $('propTier').hidden = filterTier !== -1;
+  for (const site of SITES) if (pinEls[site.id]) pinEls[site.id].g.classList.toggle('dim', filterTier !== -1 && site.tier !== filterTier);
+}
+function drawList() {
+  const root = $('tiers');
+  for (const t of TIERS) {
+    const cards = el('div', { class: 'cards' });
+    for (const site of SITES.filter((x) => x.tier === t.id)) {
+      const dist = (site.lat == null ? 0 : km(ORIGIN, site)).toFixed(0);
+      const tc = tierColor(site.tier);
+      const pick = el('button', { type: 'button', class: 'btn pick', 'aria-pressed': 'false', text: '選這裡', onclick: () => pickSite(site.id, true) });
+      const count = el('span', { class: 'vc', 'data-zero': '1', text: '0 票' });
+      const art = s('svg', { 'aria-hidden': 'true' });
+      scene(art, { w: 480, h: 180, seed: hash(site.id), motif: SCENES[site.id] || 'meadow', tint: tc });
+      const card = el('article', { class: 'card', id: 'site-' + site.id,
+          onmouseenter: () => hot(site.id, true), onmouseleave: () => hot(site.id, false) },
+        el('div', { class: 'banner' }, art,
+          el('div', { class: 'num', style: `background:${tc}`, text: String(site.n) }),
+          el('span', { class: 'drive', text: '車程' + site.drive }), count),
+        el('div', { class: 'body', style: `--tc:${tc}` },
+          el('h3', { text: site.name }), el('div', { class: 'place', text: site.place }),
+          el('dl', { class: 'facts' },
+            el('div', null, el('dt', { text: '直線距離' }), el('dd', { text: dist + ' km' })),
+            el('div', null, el('dt', { text: '海拔' }), el('dd', { text: site.alt })),
+            el('div', { class: 'wide' }, el('dt', { text: '營位' }), el('dd', { text: site.slots })),
+            el('div', { class: 'wide' }, el('dt', { text: '價格' }), el('dd', { text: site.price }))),
+          el('p', { class: 'intro', text: site.intro }),
+          el('button', { type: 'button', class: 'more', text: '看完整介紹', onclick: (e) => {
+            const c = e.currentTarget.closest('.card'); c.classList.toggle('expanded');
+            e.currentTarget.textContent = c.classList.contains('expanded') ? '收起介紹' : '看完整介紹'; } }),
+          el('div', { class: 'tags' }, site.legal ? el('span', { class: 'tag legal', text: '✓ ' + site.legal }) : null, site.tags.map((g) => el('span', { class: 'tag', text: g }))),
+          el('p', { class: 'season', text: site.season }),
+          el('div', { class: 'actions' }, pick,
+            site.joke ? el('span', { class: 'tag', text: '導航：開門，右轉，到了' }) : null,
+            site.joke ? null : el('a', { class: 'btn', href: mapsUrl(site.q), target: '_blank', rel: 'noopener', text: 'Google 地圖' }),
+            site.joke ? null : el('a', { class: 'btn', href: dirUrl(site.q), target: '_blank', rel: 'noopener', text: '從億載金城導航' })),
+          el('p', { class: 'src', text: '資料來源：' + site.src })));
+      cards.append(card);
+      cardEls[site.id] = { card, pick, count };
+    }
+    root.append(el('section', { class: 'tier', 'data-t': t.id },
+      el('div', { class: 'tier-h' },
+        el('span', { class: 'ring', style: `color:${tierColor(t.id)}` }, el('i', { style: `background:${tierColor(t.id)}` }), el('span', { style: 'color:var(--ink)', text: t.label })),
+        el('span', { class: 'sub', text: t.sub })),
+      cards));
+  }
+}
+function hot(id, on) {
+  if (pinEls[id]) pinEls[id].g.classList.toggle('hot', on);
+  cardEls[id].card.classList.toggle('hot', on);
+}
+function focusCard(id) {
+  const site = SITE_BY_ID[id];
+  if (filterTier !== -1 && filterTier !== site.tier) { filterTier = -1; applyFilter(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  cardEls[id].card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  hot(id, true); setTimeout(() => hot(id, false), 1600);
+}
+
+/* ---------- vote form ---------- */
+function buildSelect() {
+  const groups = [el('option', { value: '', text: '— 選一個營地 —' })];
+  for (const t of TIERS) {
+    const og = el('optgroup', { label: t.label });
+    for (const site of SITES.filter((x) => x.tier === t.id)) og.append(el('option', { value: site.id, text: `${site.n}. ${site.name}（${site.drive}）` }));
+    groups.push(og);
+  }
+  if (proposals.size) {
+    const og = el('optgroup', { label: '同伴新增' });
+    for (const [uid, p] of proposals) og.append(el('option', { value: 'p:' + uid, text: `${p.name}（${p.place}）` }));
+    groups.push(og);
+  }
+  const sel = $('siteSelect');
+  sel.replaceChildren(...groups);
+  sel.value = siteInfo(form.site) ? form.site : '';
+}
+function drawForm() {
+  const sel = $('siteSelect');
+  buildSelect();
+  sel.addEventListener('change', () => pickSite(sel.value, false));
+  $('propForm').addEventListener('submit', (e) => { e.preventDefault(); submitProposal(); });
+  $('propWithdraw').addEventListener('click', () => cancelEdit());
+  for (const id of ['propName', 'propPlace', 'propUrl', 'propReason']) $(id).addEventListener('input', () => { propDirty = true; });
+  const box = $('dates');
+  for (const d of DATES) {
+    const cb = el('input', { type: 'checkbox', id: 'd-' + d.key, value: d.key });
+    cb.addEventListener('change', () => { cb.checked ? form.dates.add(d.key) : form.dates.delete(d.key); dirty = true; syncDates(); });
+    box.append(el('label', { class: 'dateopt', for: 'd-' + d.key, title: d.label + (d.holiday ? '　' + d.holiday : '') }, cb,
+      el('span', { class: 'm', text: d.tile.m }), el('span', { class: 'd', text: d.tile.d }),
+      el('span', { class: 'w', text: d.holiday ? d.holiday.split('・')[0] : d.tile.w }),
+      d.holiday ? el('span', { class: 'hn', text: '連假' }) : null));
+  }
+  $('nick').addEventListener('input', (e) => { form.nick = e.target.value; dirty = true; });
+  $('voteForm').addEventListener('submit', (e) => { e.preventDefault(); submit(); });
+  $('withdrawBtn').addEventListener('click', withdraw);
+}
+function pickSite(id, fromCard) {
+  if (fromCard && form.site === id) id = '';
+  form.site = id; dirty = true;
+  syncPick();
+}
+function syncPick() {
+  const id = form.site;
+  $('siteSelect').value = siteInfo(id) ? id : '';
+  for (const [sid, c] of Object.entries(cardEls)) {
+    c.pick.setAttribute('aria-pressed', String(sid === id));
+    c.pick.textContent = sid === id ? '✓ 已選' : '選這裡';
+    c.card.classList.toggle('picked', sid === id);
+  }
+  updateGobar();
+}
+function syncDates() {
+  for (const d of DATES) {
+    const cb = $('d-' + d.key); cb.checked = form.dates.has(d.key);
+    cb.parentElement.classList.toggle('on', cb.checked);
+  }
+}
+let voteVisible = false;
+function updateGobar() {
+  const show = !!form.site && dirty && !voteVisible;
+  $('gobar').hidden = !show;
+  if (form.site) $('gobarText').textContent = '已選：' + ((siteInfo(form.site) || {}).name || '');
+}
+new IntersectionObserver((es) => { voteVisible = es[0].isIntersecting; updateGobar(); }, { threshold: 0.15 }).observe($('vote'));
+
+function loadMine() {
+  const v = votes.get(myId); if (!v) return;
+  form.dates = new Set(v.dates.filter((k) => DATE_BY_KEY[k]));
+  form.nick = v.nick; $('nick').value = v.nick;
+  pickSite(v.site, false); syncDates(); dirty = false; updateGobar();
+}
+function setStatus(msg, kind) { const s0 = $('status'); s0.textContent = msg; s0.className = 'status' + (kind ? ' ' + kind : ''); }
+function setMode(m) {
+  mode = m;
+  $('modeNotice').hidden = true;
+  $('submitBtn').disabled = m === 'loading';
+  $('siteSelect').disabled = false;
+  $('propSubmit').disabled = m === 'loading';
+}
+
+/* ---------- vote service (Google Apps Script web app) ---------- */
+const API = String((window.CAMP_CONFIG && window.CAMP_CONFIG.apiUrl) || '').trim();
+const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+const API_OK = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(API) || (LOCAL && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(API));
+function makeKey() {
+  const a = new Uint8Array(24);
+  crypto.getRandomValues(a);
+  return Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+function deviceKey() {
+  const K = 'campvote.key';
+  try { const k = localStorage.getItem(K); if (k && /^[A-Za-z0-9_-]{24,64}$/.test(k)) return k; } catch (e) { /* storage blocked */ }
+  const k = makeKey();
+  try { localStorage.setItem(K, k); } catch (e) { /* storage blocked: this visit only */ }
+  return k;
+}
+const KEY = deviceKey();
+class ApiError extends Error { constructor(code, message) { super(message || code); this.code = code; } }
+let lastStateJson = '';
+async function api(action, payload) {
+  if (!API_OK) throw new ApiError('setup');
+  const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), 20000) : 0;
+  let res;
+  try {
+    res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action, key: KEY }, payload || {})),
+      redirect: 'follow',
+      signal: ctrl ? ctrl.signal : undefined,
+    });
+  } catch (e) {
+    throw new ApiError('network');
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  let data;
+  try { data = await res.json(); } catch (e) { throw new ApiError('network'); }
+  if (!data || data.ok !== true) throw new ApiError((data && data.error) || 'server', data && data.message);
+  applyState(data.state);
+  return data;
+}
+function errMsg(e) {
+  const c = e && e.code;
+  if (c === 'setup') return '投票服務還沒設定好，請通知主揪。';
+  if (c === 'rate') return '送太快了，等一分鐘再試。';
+  if (c === 'full') return '名單已滿，請通知主揪整理。';
+  if (c === 'busy') return '同時太多人在送，請再按一次。';
+  if (c === 'invalid') return '沒送出去：' + (e.message && e.message !== 'invalid' ? e.message : '資料格式不對') + '。';
+  return '連線不穩沒送出去，請再按一次。';
+}
+function applyState(st) {
+  if (!st || typeof st !== 'object') return;
+  const j = JSON.stringify(st);
+  if (j === lastStateJson) return;
+  lastStateJson = j;
+  if (typeof st.me === 'string') myId = st.me;
+  votes.clear();
+  for (const v of Array.isArray(st.votes) ? st.votes : []) { const c = clean(v); if (c && typeof v.id === 'string') votes.set(v.id, c); }
+  proposals.clear();
+  for (const p of Array.isArray(st.proposals) ? st.proposals : []) { const c = cleanProp(p); if (c && typeof p.id === 'string' && /^[0-9a-f]{16}$/.test(p.id)) proposals.set(p.id, c); }
+  if (myId && votes.has(myId) && !dirty) loadMine();
+  renderProposals(); renderVotes();
+}
+
+async function submit() {
+  if (saving) return;
+  if (!siteInfo(form.site)) { setStatus('先選一個營地（上面的營區卡片按「選這裡」，或用下拉選單）。', 'err'); return; }
+  const dates = [...form.dates].filter((k) => DATE_BY_KEY[k]).sort();
+  if (!dates.length) { setStatus('至少勾一個你可以出發的週末。', 'err'); return; }
+  const nick = form.nick.trim();
+  if (!nick) { setStatus('請填暱稱，大家才知道是誰投的。', 'err'); $('nick').focus(); return; }
+  saving = true; $('submitBtn').disabled = true; setStatus('送出中…');
+  try {
+    await api('vote', { site: form.site, dates, nick: nick.slice(0, 20) });
+    dirty = false; updateGobar();
+    setStatus(`已送出：${siteInfo(form.site).name}，${dates.length} 個週末可出發。之後想改，直接改完再按一次。`, 'ok');
+  } catch (e) {
+    setStatus(errMsg(e), 'err');
+  } finally {
+    saving = false; $('submitBtn').disabled = false;
+  }
+}
+async function withdraw() {
+  const btn = $('withdrawBtn');
+  if (btn.dataset.confirm !== '1') { btn.dataset.confirm = '1'; btn.textContent = '確定撤回？再按一次'; setTimeout(() => { btn.dataset.confirm = ''; btn.textContent = '撤回我的票'; }, 4000); return; }
+  btn.dataset.confirm = ''; btn.textContent = '撤回我的票';
+  try { await api('unvote'); setStatus('已撤回你的票。', 'ok'); }
+  catch (e) { setStatus(errMsg(e), 'err'); }
+}
+
+/* ---------- campsites added by friends: anyone can add or edit, nobody can delete from the page ---------- */
+let propDirty = false, propSaving = false, editingPid = null;
+const propCardIds = new Set();
+const isHexId = (v) => typeof v === 'string' && /^[0-9a-f]{16}$/.test(v);
+const nickOf = (id) => ((votes.get(id) || {}).nick || '露友') + (id && id === myId ? '（你）' : '');
+function setPropStatus(msg, kind) { const s0 = $('propStatus'); s0.textContent = msg; s0.className = 'status' + (kind ? ' ' + kind : ''); }
+function safeUrl(u) {
+  try { const x = new URL(u); return x.protocol === 'https:' || x.protocol === 'http:' ? x.href : ''; } catch (e) { return ''; }
+}
+function cleanProp(raw) {
+  if (!raw || typeof raw.name !== 'string' || !raw.name.trim()) return null;
+  const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+  return { name: str(raw.name, 40), place: str(raw.place, 30), url: safeUrl(str(raw.url, 300)), reason: str(raw.reason, 150),
+    by: isHexId(raw.by) ? raw.by : '', editedBy: isHexId(raw.editedBy) ? raw.editedBy : '', at: Number(raw.at) || 0, editedAt: Number(raw.editedAt) || 0 };
+}
+function propCard(pid, p) {
+  const id = 'p:' + pid;
+  const q = p.name + ' ' + p.place;
+  const pick = el('button', { type: 'button', class: 'btn pick', 'aria-pressed': 'false', text: '選這裡', onclick: () => pickSite(id, true) });
+  const count = el('span', { class: 'vc', 'data-zero': '1', text: '0 票' });
+  let byText = `由 ${nickOf(p.by)} 新增`;
+  if (p.editedBy && p.editedAt > p.at) byText += `・最後由 ${nickOf(p.editedBy)} 修改`;
+  const art = s('svg', { 'aria-hidden': 'true' });
+  scene(art, { w: 480, h: 180, seed: hash(pid + p.name), motif: ['meadow', 'forest', 'lake', 'river'][hash(p.name) % 4] });
+  const card = el('article', { class: 'card' + (editingPid === pid ? ' editing' : '') },
+    el('div', { class: 'banner' }, art, el('div', { class: 'num p', text: '新' }), count),
+    el('div', { class: 'body' },
+      el('h3', { text: p.name }), el('div', { class: 'place', text: p.place }),
+      el('span', { class: 'by', text: byText }),
+      p.reason ? el('p', { class: 'intro', text: p.reason }) : null,
+      el('div', { class: 'actions' }, pick,
+        p.url ? el('a', { class: 'btn', href: p.url, target: '_blank', rel: 'noopener noreferrer', text: '營區頁面' }) : null,
+        el('a', { class: 'btn', href: mapsUrl(q), target: '_blank', rel: 'noopener', text: 'Google 地圖' }),
+        el('a', { class: 'btn', href: dirUrl(q), target: '_blank', rel: 'noopener', text: '從億載金城導航' }),
+        el('button', { type: 'button', class: 'btn', text: '編輯資料', onclick: () => startEdit(pid) }))));
+  cardEls[id] = { card, pick, count };
+  propCardIds.add(id);
+  return card;
+}
+function renderProposals() {
+  for (const id of propCardIds) delete cardEls[id];
+  propCardIds.clear();
+  const entries = [...proposals.entries()].sort((a, b) => a[1].at - b[1].at);
+  $('propCards').replaceChildren(...(entries.length ? entries.map(([pid, p]) => propCard(pid, p))
+    : [el('p', { class: 'empty', text: '還沒有人新增營區。' })]));
+  buildSelect(); syncPick();
+  if (editingPid && !proposals.has(editingPid)) { resetPropForm(); setPropStatus('你正在編輯的營區已被主揪移除。', 'err'); }
+}
+function fillPropForm(p) {
+  $('propName').value = p ? p.name : ''; $('propPlace').value = p ? p.place : '';
+  $('propUrl').value = p ? p.url : ''; $('propReason').value = p ? p.reason : '';
+}
+function resetPropForm() {
+  editingPid = null; propDirty = false; fillPropForm(null);
+  $('propSubmit').textContent = '新增營區';
+  $('propWithdraw').hidden = true;
+  $('propFormTitle').textContent = '新增一個營區';
+  for (const c of $('propCards').children) c.classList.remove('editing');
+}
+function startEdit(pid) {
+  const p = proposals.get(pid); if (!p) return;
+  editingPid = pid; propDirty = false; fillPropForm(p);
+  $('propSubmit').textContent = '儲存修改';
+  $('propWithdraw').hidden = false;
+  $('propFormTitle').textContent = `編輯「${p.name}」`;
+  setPropStatus('改完按「儲存修改」。每次修改都會留下紀錄。');
+  $('proposeBox').open = true;
+  renderProposals();
+  $('proposeBox').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+function cancelEdit() { resetPropForm(); setPropStatus(''); renderProposals(); }
+async function submitProposal() {
+  if (propSaving) return;
+  const name = $('propName').value.trim(), place = $('propPlace').value.trim();
+  const urlRaw = $('propUrl').value.trim(), reason = $('propReason').value.trim();
+  if (!name || !place) { setPropStatus('請填營區名稱和地點。', 'err'); return; }
+  const url = urlRaw ? safeUrl(urlRaw) : '';
+  if (urlRaw && !url) { setPropStatus('網址要以 https:// 開頭。', 'err'); return; }
+  const dup = name.length >= 4 && SITES.find((x) => x.name.includes(name) || name.includes(x.name));
+  if (dup) { setPropStatus(`「${dup.name}」已經在清單裡（編號 ${dup.n}），直接投它就好。`, 'err'); return; }
+  const same = [...proposals.entries()].find(([pid, p]) => pid !== editingPid && p.name.replace(/\s+/g, '') === name.replace(/\s+/g, ''));
+  if (same) { setPropStatus(`「${same[1].name}」已經有人新增了，按它卡片上的「編輯資料」就好。`, 'err'); return; }
+  const editing = editingPid;
+  propSaving = true; $('propSubmit').disabled = true; setPropStatus('送出中…');
+  const fields = { name: name.slice(0, 40), place: place.slice(0, 30), url: url.slice(0, 300), reason: reason.slice(0, 150) };
+  try {
+    if (editing) await api('editProposal', Object.assign({ pid: editing }, fields));
+    else await api('propose', fields);
+    resetPropForm(); renderProposals();
+    setPropStatus(editing ? '已儲存修改。' : '已新增營區，大家現在可以投它了。要投它的話，在它的卡片按「選這裡」再送出投票。', 'ok');
+  } catch (e) {
+    setPropStatus(errMsg(e), 'err');
+  } finally { propSaving = false; $('propSubmit').disabled = false; }
+}
+
+/* ---------- results ---------- */
+function tally() {
+  const siteC = Object.fromEntries(allSiteIds().map((id) => [id, 0]));
+  const dateC = Object.fromEntries(DATES.map((x) => [x.key, 0]));
+  for (const v of votes.values()) {
+    if (v.site in siteC) siteC[v.site]++;
+    for (const k of v.dates) if (k in dateC) dateC[k]++;
+  }
+  return { siteC, dateC };
+}
+function leaders(counts) {
+  const max = Math.max(0, ...Object.values(counts));
+  return { max, ids: max ? Object.keys(counts).filter((k) => counts[k] === max) : [] };
+}
+function siteColor(id) { const x = siteInfo(id); return x && !x.proposal ? tierColor(x.tier) : 'var(--muted)'; }
+function renderLeader(sl, dl, total) {
+  const box = $('leadcard');
+  const id = sl.ids[0], info = id ? siteInfo(id) : null;
+  const art = s('svg', { 'aria-hidden': 'true' });
+  scene(art, { w: 640, h: 300, seed: hash(id || 'none'), motif: info && !info.proposal ? (SCENES[id] || 'meadow') : (info ? 'meadow' : 'hero'), tint: info && !info.proposal ? tierColor(info.tier) : '', hero: !info });
+  const inner = el('div', { class: 'in' });
+  if (!total) inner.append(el('span', { class: 'k', text: '還沒開票' }), el('span', { class: 'name', text: '等你投下第一票' }), el('span', { class: 'meta', text: '往上逛營區，在喜歡的營區按「選這裡」，再到投票區送出。' }));
+  else inner.append(
+    el('span', { class: 'k', text: sl.ids.length > 1 ? `目前平手・各 ${sl.max} 票` : `目前領先・${sl.max} 票` }),
+    el('span', { class: 'name', text: sl.ids.map((x) => siteInfo(x).name).join('、') }),
+    el('span', { class: 'meta', text: dl.max ? `最多人能出發：${dl.ids.map((k) => DATE_BY_KEY[k].short).join('、')}（${dl.max} 人）` : '還沒有人勾日期' }));
+  box.replaceChildren(art, inner);
+}
+function barRow(label, n, max, lead, color) {
+  return el('div', { class: 'bar' + (lead ? ' lead' : '') },
+    el('span', { class: 'lab', text: label }), el('span', { class: 'cnt', text: String(n) }),
+    el('div', { class: 'track' }, el('div', { class: 'fill', style: `width:${max ? (n / max * 100).toFixed(1) : 0}%;background:${color || 'var(--flame)'}` })));
+}
+function renderVotes() {
+  const { siteC, dateC } = tally();
+  const sl = leaders(siteC), dl = leaders(dateC);
+  const total = [...votes.values()].filter((v) => siteInfo(v.site)).length;
+  $('sumCount').replaceChildren(String(total), ' ', el('small', { text: '人' }));
+  $('sumSite').textContent = sl.max
+    ? sl.ids.map((id) => siteInfo(id).name).join('、') + (sl.ids.length > 1 ? '（平手）' : '')
+    : '等第一票';
+  if (sl.max) $('sumSite').append(' ', el('small', { text: `${sl.max} 票` }));
+  $('sumDate').textContent = dl.max ? dl.ids.map((k) => DATE_BY_KEY[k].short).join('、') : '等第一票';
+  if (dl.max) $('sumDate').append(' ', el('small', { text: `${dl.max} 人可以` }));
+
+  for (const [id, c] of Object.entries(cardEls)) { const n = siteC[id] || 0; c.count.textContent = n + ' 票'; c.count.dataset.zero = n ? '0' : '1'; }
+  $('navCount').replaceChildren(el('b', { text: String(total) }), ' 人已投');
+  $('tabCount').textContent = String(total); $('tabCount').hidden = !total;
+  renderLeader(sl, dl, total);
+  for (const site of SITES) {
+    const n = siteC[site.id];
+    if (!pinEls[site.id]) continue;
+    const b = pinEls[site.id].badge;
+    b.setAttribute('visibility', n ? 'visible' : 'hidden');
+    b.querySelector('text').textContent = String(n);
+  }
+  const order = allSiteIds();
+  const ranked = order.filter((id) => siteC[id] > 0).sort((a, b) => siteC[b] - siteC[a] || order.indexOf(a) - order.indexOf(b));
+  $('siteBars').replaceChildren(...(ranked.length ? ranked.map((id) => barRow(siteName(id), siteC[id], sl.max, sl.ids.includes(id), siteColor(id)))
+    : [el('p', { class: 'empty', text: '還沒有人投票。往上挑一個營地，成為第一票。' })]));
+  $('dateBars').replaceChildren(...DATES.map((d) => {
+    const n = dateC[d.key], lead = dl.ids.includes(d.key);
+    return el('div', { class: 'cell' + (lead ? ' lead' : ''), style: `--h:${dl.max ? Math.round(n / dl.max * 70) : 0}%`, title: d.label + (d.holiday ? '　' + d.holiday : '') },
+      el('span', { class: 'd', text: d.short + (d.holiday ? ' 連假' : '') }),
+      el('span', { class: 'c' }, String(n), el('small', { text: ' 人' })));
+  }));
+
+  $('withdrawBtn').hidden = !(myId && votes.has(myId));
+  $('submitBtn').textContent = myId && votes.has(myId) ? '更新我的投票' : '送出投票';
+
+  const list = $('voters');
+  const ids = [...votes.keys()];
+  if (!ids.length) { list.replaceChildren(el('li', { class: 'empty', text: '名單會在第一票之後出現。' })); return; }
+  ids.sort((a, b) => (votes.get(b).at || 0) - (votes.get(a).at || 0));
+  list.replaceChildren(...ids.map((id) => {
+    const v = votes.get(id);
+    const name = (v.nick || '露友') + (id === myId ? '（你）' : '');
+    return el('li', { class: 'voter' },
+      el('i', { class: 'av', style: `background:hsl(${hash(id) % 360} 55% 55%)` }),
+      el('span', { text: name }),
+      el('span', { class: 'vs', text: `→ ${siteName(v.site)}・${v.dates.filter((k) => DATE_BY_KEY[k]).length} 個週末` }));
+  }));
+}
+
+function clean(raw) {
+  if (!raw || typeof raw.site !== 'string' || !raw.site || raw.site.length > 200) return null;
+  return {
+    site: raw.site,
+    dates: Array.isArray(raw.dates) ? raw.dates.filter((x) => typeof x === 'string').slice(0, 30) : [],
+    nick: typeof raw.nick === 'string' ? raw.nick.slice(0, 20) : '',
+    at: Number(raw.at) || 0,
+  };
+}
+
+/* ---------- phone helpers: map toggle, bottom tab bar, in-app browser tip ---------- */
+function setMapOpen(open) {
+  $('mapcard').classList.toggle('open', open);
+  $('mapToggle').setAttribute('aria-expanded', String(open));
+  $('mapToggle').textContent = open ? '收起地圖' : '展開地圖';
+}
+$('mapToggle').addEventListener('click', () => setMapOpen(!$('mapcard').classList.contains('open')));
+$('tabMap').addEventListener('click', () => setMapOpen(true));
+const tabLinks = [...$('tabbar').querySelectorAll('a')];
+if ('IntersectionObserver' in window) {
+  const seen = new Map();
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) seen.set(e.target.id, e.isIntersecting);
+    const cur = ['results', 'vote', 'mapcard', 'sites'].find((id) => seen.get(id));
+    tabLinks.forEach((a) => a.classList.toggle('on', a.dataset.sec === cur));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  ['sites', 'mapcard', 'vote', 'results'].forEach((id) => io.observe($(id)));
+}
+const inapp = document.documentElement.dataset.inapp;
+if (inapp) {
+  const tip = $('inappTip'); tip.hidden = false;
+  tip.textContent = (inapp === 'line' ? '你正在 LINE 的內建瀏覽器。' : '你正在 App 的內建瀏覽器。') + '如果畫面不完整或按了沒反應，請點右上角選單，選「用預設瀏覽器開啟」。';
+}
+
+/* ---------- boot ---------- */
+scene($('heroScene'), { w: 1440, h: 640, seed: 20261105, motif: 'hero', hero: true });
+drawMap(); drawFilters(); drawList(); drawForm(); applyFilter(); renderVotes(); setMode('loading');
+
+const note = $('loadNote');
+async function refresh() {
+  try {
+    await api('state');
+    setMode('ok'); note.hidden = true;
+  } catch (e) {
+    if (e.code === 'setup') { setMode('setup'); note.hidden = false; note.textContent = '投票服務還沒設定好（主揪請照 README 設定 config.js）。'; }
+    else { if (mode === 'loading') setMode('ok'); note.hidden = false; note.textContent = '暫時連不上投票資料，會自動重試。'; }
+  }
+}
+refresh();
+setInterval(() => { if (document.visibilityState === 'visible' && !saving && !propSaving) refresh(); }, 20000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
+})();
+</script>
+</body>
+</html>
